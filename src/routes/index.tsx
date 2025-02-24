@@ -24,7 +24,6 @@ async function fetchCommentsAction(
     );
 
     // fetch summary
-
     const summaryResponse = await octokit.rest.issues.get({
       owner: inputOwner,
       repo: inputRepo,
@@ -33,6 +32,7 @@ async function fetchCommentsAction(
     const issueSummary =
       summaryResponse.data.body ?? "No description provided.";
 
+    // fetch comments
     const response = await octokit.rest.issues.listComments({
       owner: inputOwner,
       repo: inputRepo,
@@ -111,7 +111,7 @@ function Index() {
           name="issueNumber"
           defaultValue={issueNumber}
         />
-        <SubmitButton className="flex-grow mb-2" />
+        <SubmitButton className="flex-grow mb-2 min-w-[100px]" />
       </form>
 
       {/* Display comments */}
