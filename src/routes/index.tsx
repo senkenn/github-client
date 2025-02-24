@@ -19,6 +19,19 @@ async function fetchCommentsAction(
     const inputOwner = formData.get("owner") as string;
     const inputRepo = formData.get("repo") as string;
     const inputIssueNumber = formData.get("issueNumber") as string;
+    console.log(
+      `url: https://github.com/${inputOwner}/${inputRepo}/issues/${inputIssueNumber}`
+    );
+
+    // fetch summary
+
+    const summaryResponse = await octokit.rest.issues.get({
+      owner: inputOwner,
+      repo: inputRepo,
+      issue_number: parseInt(inputIssueNumber, 10),
+    });
+    const issueSummary =
+      summaryResponse.data.body ?? "No description provided.";
 
     const response = await octokit.rest.issues.listComments({
       owner: inputOwner,
@@ -33,7 +46,7 @@ async function fetchCommentsAction(
       owner: inputOwner,
       repo: inputRepo,
       issueNumber: inputIssueNumber,
-      result: { isOk: true, issueComments: comments },
+      result: { isOk: true, issueComments: [issueSummary, ...comments] },
     };
   } catch (error) {
     console.error("Error fetching comments", error);
@@ -105,18 +118,30 @@ function Index() {
       {!result.isOk ? (
         <div className="p-2">Error: {result.error.message}</div>
       ) : (
-        result.issueComments.map((comment, index) => {
-          return (
-            <div
-              contentEditable="true"
-              key={index}
-              className="border border-gray-300 rounded p-2 font-mono bg-gray-100 w-full whitespace-pre-wrap"
-              suppressContentEditableWarning={true}
+        <>
+          {owner && repo && issueNumber && (
+            <a
+              href={`https://github.com/${owner}/${repo}/issues/${issueNumber}`}
+              className="p-2 text-blue-500 underline"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              {comment}
-            </div>
-          );
-        })
+              {`https://github.com/${owner}/${repo}/issues/${issueNumber}`}
+            </a>
+          )}
+          {result.issueComments.map((comment, index) => {
+            return (
+              <div
+                contentEditable="true"
+                key={index}
+                className="border border-gray-300 rounded m-2 p-2 font-mono bg-gray-100 w-full whitespace-pre-wrap"
+                suppressContentEditableWarning={true}
+              >
+                {comment}
+              </div>
+            );
+          })}
+        </>
       )}
     </>
   );
