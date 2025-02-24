@@ -15,47 +15,68 @@ async function fetchCommentsAction(
   _state: IssueParams,
   formData: FormData
 ): Promise<IssueParams> {
-  const inputOwner = formData.get("owner") as string;
-  const inputRepo = formData.get("repo") as string;
-  const inputIssueNumber = formData.get("issueNumber") as string;
+  try {
+    const inputOwner = formData.get("owner") as string;
+    const inputRepo = formData.get("repo") as string;
+    const inputIssueNumber = formData.get("issueNumber") as string;
 
-  const response = await octokit.rest.issues.listComments({
-    owner: inputOwner,
-    repo: inputRepo,
-    issue_number: parseInt(inputIssueNumber, 10),
-  });
-  const comments = response.data
-    .map((comment) => comment.body)
-    .filter((body): body is string => body !== undefined);
+    const response = await octokit.rest.issues.listComments({
+      owner: inputOwner,
+      repo: inputRepo,
+      issue_number: parseInt(inputIssueNumber, 10),
+    });
+    const comments = response.data
+      .map((comment) => comment.body)
+      .filter((body): body is string => body !== undefined);
 
-  return {
-    owner: inputOwner,
-    repo: inputRepo,
-    issueNumber: inputIssueNumber,
-    issueComments: comments,
-  };
+    return {
+      owner: inputOwner,
+      repo: inputRepo,
+      issueNumber: inputIssueNumber,
+      result: { isOk: true, issueComments: comments },
+    };
+  } catch (error) {
+    console.error("Error fetching comments", error);
+    return {
+      owner: formData.get("owner") as string,
+      repo: formData.get("repo") as string,
+      issueNumber: formData.get("issueNumber") as string,
+      result: { isOk: false, error: error as Error },
+    };
+  }
 }
+
+type Ok = {
+  isOk: true;
+  issueComments: string[];
+};
+
+type Err = {
+  isOk: false;
+  error: Error;
+};
 
 type IssueParams = {
   owner: string;
   repo: string;
   issueNumber: string;
-  issueComments: string[] | undefined;
+  result: Ok | Err;
 };
 
 function Index() {
-  const [{ owner, repo, issueNumber, issueComments }, action] = useActionState(
+  const [{ owner, repo, issueNumber, result }, action] = useActionState(
     fetchCommentsAction,
     {
       owner: "senkenn",
       repo: "sqlsurge",
       issueNumber: "1",
-      issueComments: [],
+      result: { isOk: true, issueComments: [] },
     }
   );
 
   return (
     <>
+      {/** TODO: もっと見た目良く */}
       <form action={action} className="p-2">
         <input
           type="text"
@@ -76,16 +97,16 @@ function Index() {
           placeholder="Enter Issue Number (e.g. 1)"
           className="border border-gray-300 rounded p-2 mb-4 w-full"
           name="issueNumber"
-          defaultValue={issueNumber.toString()}
+          defaultValue={issueNumber}
         />
         <SubmitButton />
       </form>
 
       {/* Display comments */}
-      {!issueComments ? (
-        <div className="p-2">No comments found</div>
+      {!result.isOk ? (
+        <div className="p-2">Error: {result.error.message}</div>
       ) : (
-        issueComments.map((comment, index) => {
+        result.issueComments.map((comment, index) => {
           return (
             <div
               contentEditable="true"
