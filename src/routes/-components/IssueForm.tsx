@@ -7,7 +7,7 @@ interface IssueFormProps {
 }
 
 export function IssueForm({ action, data }: IssueFormProps) {
-  const { owner, repo, issueNumber } = data;
+  const { owner, repo, number: issueNumber } = data;
 
   return (
     <form action={action} className="p-2 flex flex-wrap gap-2 items-center">

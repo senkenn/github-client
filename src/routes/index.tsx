@@ -12,8 +12,9 @@ function Index() {
   const [state, action] = useActionState(fetchCommentsAction, {
     owner: "",
     repo: "",
-    issueNumber: "",
-    result: { isOk: true, issueComments: [] },
+    number: "",
+    body: "",
+    comments: [],
   });
 
   return (
