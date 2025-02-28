@@ -43,7 +43,11 @@ export function IssueComments({ data }: IssueCommentsProps) {
 
       {/** Issue body */}
       {issueBody && (
-        <div className="border border-gray-300 rounded m-2 p-2 font-mono bg-gray-100 w-full whitespace-pre-wrap">
+        <div
+          contentEditable="true"
+          className="border border-gray-300 rounded m-2 p-2 font-mono bg-gray-100 w-full whitespace-pre-wrap"
+          suppressContentEditableWarning={true}
+        >
           {issueBody}
         </div>
       )}
