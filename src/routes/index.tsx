@@ -15,11 +15,13 @@ function Index() {
     number: "",
     body: "",
     comments: [],
+    error: undefined,
   });
 
   return (
     <>
       <IssueForm action={action} data={state} />
+      {state.error && <div className="p-2">Error: {state.error.message}</div>}
       <IssueComments data={state} />
     </>
   );
