@@ -1,14 +1,8 @@
-@import "tailwindcss";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+/* @import "tailwindcss/preflight.css" layer(base); */
+@import "tailwindcss/utilities.css" layer(utilities);
 
-button {
-  transition: background-color 0.3s ease;
-}
-
-button:hover:not(:disabled) {
-  filter: brightness(1.1);
-  cursor: pointer;
-}
-
-button:disabled {
-  cursor: not-allowed;
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
