@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { EditorProvider, FloatingMenu } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import MarkdownIt from "markdown-it";
+import { useEffect, useMemo, useState } from "react";
 
 export type IssueParams = {
   owner: string;
@@ -9,18 +12,33 @@ export type IssueParams = {
   error?: Error;
 };
 
-interface IssueCommentsProps {
-  data: IssueParams;
-}
+type IssueCommentsProps = {
+  issueBody: string;
+  issueComments: string[];
+};
 
-export function IssueComments({ data }: IssueCommentsProps) {
-  const {
-    owner,
-    repo,
-    number: issueNumber,
-    body: issueBody,
-    comments: issueComments,
-  } = data;
+// define your extension array
+const extensions = [StarterKit];
+
+// Helper function to convert Markdown to HTML
+const markdownToHtml = (markdown: string): string => {
+  const md = new MarkdownIt();
+  return md.render(markdown);
+};
+
+export function IssueComments({
+  issueBody,
+  issueComments,
+}: IssueCommentsProps) {
+  // Convert markdown to HTML for the issue body
+  const bodyHtml = useMemo(
+    () => (issueBody ? markdownToHtml(issueBody) : ""),
+    [issueBody]
+  );
+  const commentsHtml = useMemo(
+    () => issueComments.map((comment) => markdownToHtml(comment)),
+    [issueComments]
+  );
 
   // States to manage the edited comments
   const [editedComments, setEditedComments] = useState<string[]>([
@@ -99,22 +117,14 @@ export function IssueComments({ data }: IssueCommentsProps) {
 
   return (
     <>
-      {/** Issue URL */}
-      {owner && repo && issueNumber && (
-        <div className="p-2">
-          URL:
-          <a
-            href={`https://github.com/${owner}/${repo}/issues/${issueNumber}`}
-            className="p-2 text-blue-500 underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {`https://github.com/${owner}/${repo}/issues/${issueNumber}`}
-          </a>
+      {/** Issue body */}
+      {issueBody && (
+        <div className="m-2 border border-gray-300 rounded p-2 font-mono bg-gray-100">
+          <EditorProvider extensions={extensions} content={bodyHtml}>
+            <FloatingMenu editor={null}>This is the floating menu</FloatingMenu>
+          </EditorProvider>
         </div>
       )}
-
-      {/** Issue body */}
       {editedBody && (
         <div className="m-2">
           <div
@@ -146,6 +156,16 @@ export function IssueComments({ data }: IssueCommentsProps) {
       )}
 
       {/** Issue comments */}
+      {commentsHtml.map((commentHtml, index) => (
+        <div
+          key={index}
+          className="border border-gray-300 rounded m-2 p-2 font-mono bg-gray-100 w-full whitespace-pre-wrap"
+        >
+          <EditorProvider extensions={extensions} content={commentHtml}>
+            <FloatingMenu editor={null}>This is the floating menu</FloatingMenu>
+          </EditorProvider>
+        </div>
+      ))}
       {editedComments.map((comment, index) => (
         <div key={index} className="m-2">
           <div

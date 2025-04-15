@@ -17,12 +17,29 @@ function Index() {
     comments: [],
     error: undefined,
   });
+  const { owner, repo, number } = state;
 
   return (
     <>
       <IssueForm action={action} data={state} />
       {state.error && <div className="p-2">Error: {state.error.message}</div>}
-      <IssueComments data={state} />
+
+      {/** Issue URL */}
+      {owner && repo && number && (
+        <div className="p-2">
+          URL:
+          <a
+            href={`https://github.com/${owner}/${repo}/issues/${number}`}
+            className="p-2 text-blue-500 underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {`https://github.com/${owner}/${repo}/issues/${number}`}
+          </a>
+        </div>
+      )}
+
+      <IssueComments issueBody={state.body} issueComments={state.comments} />
     </>
   );
 }
