@@ -1,7 +1,16 @@
-import { EditorProvider, FloatingMenu } from "@tiptap/react";
+import {
+  EditorProvider,
+  FloatingMenu,
+  ReactNodeViewRenderer,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import MarkdownIt from "markdown-it";
 import { useEffect, useMemo, useState } from "react";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { all, createLowlight } from "lowlight";
+import { CodeBlockComponent } from "./CodeBlockComponent";
+
+const lowlight = createLowlight(all);
 
 export type IssueParams = {
   owner: string;
@@ -9,7 +18,6 @@ export type IssueParams = {
   number: string;
   body: string;
   comments: string[];
-  error?: Error;
 };
 
 type IssueCommentsProps = {
@@ -18,7 +26,14 @@ type IssueCommentsProps = {
 };
 
 // define your extension array
-const extensions = [StarterKit];
+const extensions = [
+  StarterKit,
+  CodeBlockLowlight.extend({
+    addNodeView() {
+      return ReactNodeViewRenderer(CodeBlockComponent);
+    },
+  }).configure({ lowlight }),
+];
 
 // Helper function to convert Markdown to HTML
 const markdownToHtml = (markdown: string): string => {
