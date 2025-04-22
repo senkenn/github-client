@@ -18,6 +18,7 @@ export type IssueParams = {
   number: string;
   body: string;
   comments: string[];
+  error?: Error;
 };
 
 type IssueCommentsProps = {
