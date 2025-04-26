@@ -1,5 +1,5 @@
+import type { IssueParams } from "./CommentItem";
 import { SubmitButton } from "./SubmitButton";
-import { IssueParams } from "./IssueComments";
 
 interface IssueFormProps {
   action: (formData: FormData) => void;

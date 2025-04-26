@@ -1,5 +1,5 @@
-import { fetchCommentsAction } from "./commentsAction";
 import { Octokit } from "octokit";
+import { fetchCommentsAction } from "./commentsAction";
 
 vi.mock(import("octokit"), () => {
   const Octokit = vi.fn();

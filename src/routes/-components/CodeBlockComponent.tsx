@@ -1,5 +1,9 @@
-import { NodeViewContent, NodeViewProps, NodeViewWrapper } from "@tiptap/react";
-import { ComponentType } from "react";
+import {
+  NodeViewContent,
+  type NodeViewProps,
+  NodeViewWrapper,
+} from "@tiptap/react";
+import type { ComponentType } from "react";
 
 export const CodeBlockComponent: ComponentType<NodeViewProps> = ({
   node: {
@@ -17,13 +21,11 @@ export const CodeBlockComponent: ComponentType<NodeViewProps> = ({
       >
         <option value="null">auto</option>
         <option disabled>—</option>
-        {extension.options.lowlight
-          .listLanguages()
-          .map((lang: string, index: number) => (
-            <option key={index} value={lang}>
-              {lang}
-            </option>
-          ))}
+        {extension.options.lowlight.listLanguages().map((lang: string) => (
+          <option key={lang} value={lang}>
+            {lang}
+          </option>
+        ))}
       </select>
       <pre>
         <NodeViewContent as="code" />
