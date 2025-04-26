@@ -26,7 +26,7 @@ const markdownToHtml = (markdown: string): string => {
   return html;
 };
 
-type IssueComment = {
+export type IssueComment = {
   id: number;
   body: string;
 };

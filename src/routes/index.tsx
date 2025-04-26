@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useActionState, useCallback, useEffect, useState } from "react";
 import { CommentItem } from "./-components/CommentItem";
-import type { IssueComment } from "./-components/IssueComments";
+import type { IssueComment } from "./-components/CommentItem";
 import { IssueForm } from "./-components/IssueForm";
 import {
   fetchCommentsAction,
