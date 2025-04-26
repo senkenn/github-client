@@ -1,0 +1,53 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "organizeImports": {
+    "enabled": true,
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "warn",
+        "noConsoleLog": "error",
+      },
+      "style": {
+        "noParameterAssign": "warn",
+        "noNonNullAssertion": "warn",
+      },
+    },
+  },
+  "json": {
+    "parser": {
+      "allowTrailingCommas": true,
+      "allowComments": true,
+    },
+    "formatter": {
+      "trailingCommas": "all",
+    },
+  },
+  "files": {
+    "ignore": ["package.json", "pnpm-lock.yaml"],
+  },
+  "overrides": [
+    {
+      "include": ["**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off",
+          },
+        },
+      },
+    },
+  ],
+}
