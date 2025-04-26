@@ -4,6 +4,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
 import MarkdownIt from "markdown-it";
 import { useMemo, useState } from "react";
+import TurndownService from "turndown";
 import { CodeBlockComponent } from "./CodeBlockComponent";
 
 const lowlight = createLowlight(all);
@@ -26,6 +27,12 @@ const markdownToHtml = (markdown: string): string => {
   return html;
 };
 
+const htmlToMarkdown = (html: string): string => {
+  const turndownService = new TurndownService();
+  const markdown = turndownService.turndown(html);
+  return markdown;
+};
+
 export type IssueComment = {
   id: number;
   body: string;
@@ -46,16 +53,16 @@ type CommentItemProps = {
 };
 
 export function CommentItem({ comment, onUpdateComment }: CommentItemProps) {
-  const [editedBody, setEditedBody] = useState(comment.body);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<any>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [content, setContent] = useState(markdownToHtml(comment.body));
 
   const handleSave = async () => {
     setIsSaving(true);
     setError(undefined);
     try {
-      await onUpdateComment(comment.id, editedBody);
+      const updatedBody = htmlToMarkdown(content);
+      await onUpdateComment(comment.id, updatedBody);
     } catch (err) {
       console.error("コメントの更新に失敗しました:", err);
       setError("コメントの更新に失敗しました。");
@@ -65,7 +72,6 @@ export function CommentItem({ comment, onUpdateComment }: CommentItemProps) {
   };
 
   const handleCancel = () => {
-    setEditedBody(comment.body); // 編集内容を元に戻す
     setError(undefined);
   };
 

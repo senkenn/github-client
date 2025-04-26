@@ -66,10 +66,21 @@ export async function updateComment(
   commentId: number,
   updatedBody: string,
 ) {
-  return {
-    id: commentId,
-    body: updatedBody,
-    user: { login: "userA" },
-    updated_at: new Date().toISOString(),
-  };
+  try {
+    const response = await octokit.rest.issues.updateComment({
+      owner,
+      repo,
+      comment_id: commentId,
+      body: updatedBody,
+    });
+    return {
+      id: response.data.id,
+      body: response.data.body,
+      user: { login: response.data.user?.login ?? "unknown" },
+      updated_at: response.data.updated_at,
+    };
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    throw error;
+  }
 }

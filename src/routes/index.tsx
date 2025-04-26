@@ -16,9 +16,9 @@ function Index() {
   const [comments, setComments] = useState<IssueComment[]>([]);
 
   const [state, action] = useActionState(fetchCommentsAction, {
-    owner: "",
-    repo: "",
-    number: "",
+    owner: "senkenn",
+    repo: "github-client",
+    number: "1",
     body: "",
     comments: [],
     error: undefined,
@@ -34,26 +34,10 @@ function Index() {
       commentId: IssueComment["id"],
       updatedBody: IssueComment["body"],
     ) => {
-      // APIを呼び出してコメントを更新
-      const updatedComment = await updateComment(
-        owner,
-        repo,
-        commentId,
-        updatedBody,
-      );
-
-      // ローカルのコメントリストを更新
-      setComments((prevComments) =>
-        prevComments.map(
-          (comment) =>
-            comment.id === commentId
-              ? { ...comment, ...updatedComment }
-              : comment, // 更新されたコメントで置き換え
-        ),
-      );
+      await updateComment(owner, repo, commentId, updatedBody);
     },
     [owner, repo],
-  ); // 依存配列
+  );
 
   return (
     <>
