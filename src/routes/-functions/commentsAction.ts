@@ -1,5 +1,5 @@
 import { Octokit } from "octokit";
-import { IssueParams } from "../-components/IssueComments";
+import type { IssueParams } from "../-components/CommentItem";
 
 const octokit = new Octokit({
   auth: import.meta.env.VITE_GITHUB_TOKEN,
@@ -7,7 +7,7 @@ const octokit = new Octokit({
 
 export async function fetchCommentsAction(
   _state: IssueParams,
-  formData: FormData
+  formData: FormData,
 ): Promise<IssueParams> {
   try {
     const inputOwner = formData.get("owner") as string;
@@ -18,7 +18,7 @@ export async function fetchCommentsAction(
     const issueSummaryRes = await octokit.rest.issues.get({
       owner: inputOwner,
       repo: inputRepo,
-      issue_number: parseInt(inputIssueNumber, 10),
+      issue_number: Number.parseInt(inputIssueNumber, 10),
     });
     const body = issueSummaryRes.data.body ?? "No description provided.";
 
@@ -26,18 +26,26 @@ export async function fetchCommentsAction(
     const response = await octokit.rest.issues.listComments({
       owner: inputOwner,
       repo: inputRepo,
-      issue_number: parseInt(inputIssueNumber, 10),
+      issue_number: Number.parseInt(inputIssueNumber, 10),
     });
     const comments = response.data
-      .map((comment) => comment.body)
-      .filter((body): body is string => body !== undefined);
+      .map((comment) => {
+        return {
+          id: comment.id,
+          body: comment.body,
+        };
+      })
+      .filter(
+        (comment): comment is { id: number; body: string } =>
+          comment.body !== undefined,
+      );
 
     return {
       owner: inputOwner,
       repo: inputRepo,
       number: inputIssueNumber,
       body,
-      comments,
+      comments: comments,
     };
   } catch (error) {
     console.error("Error fetching comments", error);
@@ -50,4 +58,18 @@ export async function fetchCommentsAction(
       error: error as Error,
     };
   }
+}
+
+export async function updateComment(
+  owner: string,
+  repo: string,
+  commentId: number,
+  updatedBody: string,
+) {
+  return {
+    id: commentId,
+    body: updatedBody,
+    user: { login: "userA" },
+    updated_at: new Date().toISOString(),
+  };
 }

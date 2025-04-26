@@ -1,14 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useActionState } from "react";
+import { useActionState, useCallback, useEffect, useState } from "react";
+import { CommentItem } from "./-components/CommentItem";
+import type { IssueComment } from "./-components/IssueComments";
 import { IssueForm } from "./-components/IssueForm";
-import { IssueComments } from "./-components/IssueComments";
-import { fetchCommentsAction } from "./-functions/commentsAction";
+import {
+  fetchCommentsAction,
+  updateComment,
+} from "./-functions/commentsAction";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
+  const [comments, setComments] = useState<IssueComment[]>([]);
+
   const [state, action] = useActionState(fetchCommentsAction, {
     owner: "",
     repo: "",
@@ -17,7 +23,37 @@ function Index() {
     comments: [],
     error: undefined,
   });
-  const { owner, repo, number } = state;
+  const { owner, repo, number, comments: fetchedComments } = state;
+
+  useEffect(() => {
+    setComments(fetchedComments);
+  }, [fetchedComments]);
+
+  const handleUpdateComment = useCallback(
+    async (
+      commentId: IssueComment["id"],
+      updatedBody: IssueComment["body"],
+    ) => {
+      // APIを呼び出してコメントを更新
+      const updatedComment = await updateComment(
+        owner,
+        repo,
+        commentId,
+        updatedBody,
+      );
+
+      // ローカルのコメントリストを更新
+      setComments((prevComments) =>
+        prevComments.map(
+          (comment) =>
+            comment.id === commentId
+              ? { ...comment, ...updatedComment }
+              : comment, // 更新されたコメントで置き換え
+        ),
+      );
+    },
+    [owner, repo],
+  ); // 依存配列
 
   return (
     <>
@@ -39,7 +75,13 @@ function Index() {
         </div>
       )}
 
-      <IssueComments issueBody={state.body} issueComments={state.comments} />
+      {comments.map((comment) => (
+        <CommentItem
+          key={comment.id}
+          comment={comment}
+          onUpdateComment={handleUpdateComment}
+        />
+      ))}
     </>
   );
 }
