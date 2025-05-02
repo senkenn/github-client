@@ -22,3 +22,7 @@ pre-commit:
       run: |
         # check file name
         git diff --name-only --cached | pnpm cspell --no-progress --show-context stdin --cache
+    test:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: |
+        pnpm test
