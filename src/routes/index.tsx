@@ -62,6 +62,8 @@ function Index() {
           onUpdateComment={handleUpdateComment}
         />
       ))}
+
+      {/* TODO: コメント追加の場合 */}
     </>
   );
 }

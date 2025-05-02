@@ -11,7 +11,16 @@ export function markdownToHtml(markdown: string): string {
 }
 
 export function htmlToMarkdown(html: string): string {
-  const turndownService = new TurndownService();
-  const markdown = turndownService.turndown(html);
+  // TODO: html -> markdown の変換に使っている Turndown のオプションを調整できるようにする
+  const turndownService = new TurndownService({
+    headingStyle: "atx",
+    bulletListMarker: "-",
+    codeBlockStyle: "fenced",
+  });
+  const markdown = turndownService
+    .turndown(html)
+    // Replace "-   " at the beginning of lines with "- " to fix extra spacing
+    .replace(/^- {3}/gm, "- ");
+  console.debug("markdown", markdown);
   return markdown;
 }
