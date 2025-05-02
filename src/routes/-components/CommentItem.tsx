@@ -2,9 +2,8 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { EditorProvider, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
-import MarkdownIt from "markdown-it";
-import { useMemo, useState } from "react";
-import TurndownService from "turndown";
+import { useCallback, useMemo, useState } from "react";
+import { htmlToMarkdown, markdownToHtml } from "../-functions/mdHtmlUtils";
 import { CodeBlockComponent } from "./CodeBlockComponent";
 
 const lowlight = createLowlight(all);
@@ -17,21 +16,6 @@ const extensions = [
     },
   }).configure({ lowlight }),
 ];
-
-const markdownToHtml = (markdown: string): string => {
-  const md = new MarkdownIt();
-  const html = md
-    .render(markdown)
-    // <pre><code...> タグ内の末尾の改行(\n</code>)を削除する
-    .replace(/(<pre><code[^>]*>.*?)\n(<\/code><\/pre>)/gs, "$1$2");
-  return html;
-};
-
-const htmlToMarkdown = (html: string): string => {
-  const turndownService = new TurndownService();
-  const markdown = turndownService.turndown(html);
-  return markdown;
-};
 
 export type IssueComment = {
   id: number;
@@ -71,9 +55,10 @@ export function CommentItem({ comment, onUpdateComment }: CommentItemProps) {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
+    setContent(markdownToHtml(comment.body));
     setError(undefined);
-  };
+  }, [comment.body]);
 
   const commentHtml = useMemo(
     () => markdownToHtml(comment.body),

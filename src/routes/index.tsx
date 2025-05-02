@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useActionState, useCallback, useEffect, useState } from "react";
+import { useActionState, useCallback } from "react";
 import { CommentItem } from "./-components/CommentItem";
 import type { IssueComment } from "./-components/CommentItem";
 import { IssueForm } from "./-components/IssueForm";
@@ -13,8 +13,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [comments, setComments] = useState<IssueComment[]>([]);
-
   const [state, action] = useActionState(fetchCommentsAction, {
     owner: "senkenn",
     repo: "github-client",
@@ -25,9 +23,7 @@ function Index() {
   });
   const { owner, repo, number, comments: fetchedComments } = state;
 
-  useEffect(() => {
-    setComments(fetchedComments);
-  }, [fetchedComments]);
+  // TODO: コメント編集して 再 fetch してもコメントが更新されない
 
   const handleUpdateComment = useCallback(
     async (
@@ -59,7 +55,7 @@ function Index() {
         </div>
       )}
 
-      {comments.map((comment) => (
+      {fetchedComments.map((comment) => (
         <CommentItem
           key={comment.id}
           comment={comment}
