@@ -21,6 +21,6 @@ export function htmlToMarkdown(html: string): string {
     .turndown(html)
     // Replace "-   " at the beginning of lines with "- " to fix extra spacing
     .replace(/^- {3}/gm, "- ");
-  console.debug("markdown", markdown);
+  console.debug("markdown", markdown); // TODO: ロガーを使う
   return markdown;
 }

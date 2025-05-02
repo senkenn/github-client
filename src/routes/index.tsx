@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [state, action] = useActionState(fetchCommentsAction, {
     owner: "senkenn",
-    repo: "github-client",
+    repo: "dotfiles",
     number: "1",
     body: "",
     comments: [],

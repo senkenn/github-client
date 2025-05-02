@@ -48,7 +48,7 @@ export async function fetchCommentsAction(
       comments: comments,
     };
   } catch (error) {
-    console.error("Error fetching comments", error);
+    console.error("Error fetching comments", error); // TODO: ロガーを使う
     return {
       owner: formData.get("owner") as string,
       repo: formData.get("repo") as string,

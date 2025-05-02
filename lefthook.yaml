@@ -25,4 +25,4 @@ pre-commit:
     test:
       glob: "*.{js,ts,jsx,tsx}"
       run: |
-        pnpm test
+        NO_COLOR=1 pnpm test --no-color

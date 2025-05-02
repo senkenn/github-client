@@ -23,18 +23,21 @@ describe("fetchCommentsAction", () => {
           body: "This is a test issue body",
         },
       } as any);
+    const listCommentsResponse = {
+      data: [
+        {
+          id: 0,
+          body: "This is a test comment",
+        },
+        {
+          id: 1,
+          body: "This is another test comment",
+        },
+      ],
+    };
     const mockIssuesListComments = vi
       .spyOn(octokit.rest.issues, "listComments")
-      .mockResolvedValueOnce({
-        data: [
-          {
-            body: "This is a test comment",
-          },
-          {
-            body: "This is another test comment",
-          },
-        ],
-      } as any);
+      .mockResolvedValueOnce(listCommentsResponse as any);
     const formData = new FormData();
     formData.append("owner", "testOwner");
     formData.append("repo", "testRepo");
@@ -44,14 +47,14 @@ describe("fetchCommentsAction", () => {
       repo: "testRepo",
       number: "123",
       body: "This is a test issue body",
-      comments: ["This is a test comment", "This is another test comment"],
+      comments: listCommentsResponse.data,
     };
 
     // call
     const result = await fetchCommentsAction({} as any, formData as any);
 
     // assert
-    expect(result).toEqual(expectedResult);
+    expect(result).toStrictEqual(expectedResult);
     expect(mockIssuesGet).toHaveBeenCalledWith({
       owner: "testOwner",
       repo: "testRepo",
@@ -80,7 +83,7 @@ describe("fetchCommentsAction", () => {
     const result = await fetchCommentsAction({} as any, formData as any);
 
     // assert
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       owner: "testOwner",
       repo: "testRepo",
       number: "123",
@@ -110,6 +113,7 @@ describe("fetchCommentsAction", () => {
       .mockResolvedValueOnce({
         data: [
           {
+            id: 0,
             body: "This is a test comment",
           },
         ],
@@ -125,14 +129,19 @@ describe("fetchCommentsAction", () => {
       repo: "testRepo",
       number: "123",
       body: "No description provided.",
-      comments: ["This is a test comment"],
+      comments: [
+        {
+          id: 0,
+          body: "This is a test comment",
+        },
+      ],
     };
 
     // call
     const result = await fetchCommentsAction({} as any, formData as any);
 
     // assert
-    expect(result).toEqual(expectedResult);
+    expect(result).toStrictEqual(expectedResult);
     expect(mockIssuesGet).toHaveBeenCalledWith({
       owner: "testOwner",
       repo: "testRepo",
@@ -178,7 +187,7 @@ describe("fetchCommentsAction", () => {
     const result = await fetchCommentsAction({} as any, formData as any);
 
     // assert
-    expect(result).toEqual(expectedResult);
+    expect(result).toStrictEqual(expectedResult);
     expect(mockIssuesListComments).toHaveBeenCalledWith({
       owner: "testOwner",
       repo: "testRepo",
