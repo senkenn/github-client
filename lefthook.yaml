@@ -1,0 +1,24 @@
+# EXAMPLE USAGE:
+#
+#   Refer for explanation to following link:
+#   https://lefthook.dev/configuration
+#
+# pre-push:
+#   commands:
+#     packages-audit:
+#       tags: security
+#       run: bunx audit
+
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "*.{js,ts,jsx,tsx,json,jsonc,css,scss}"
+      exclude: "package.json"
+      run: |
+        pnpm biome check --write {staged_files} && git add {staged_files}
+    cspell:
+      glob: "*"
+      run: |
+        # check file name
+        git diff --name-only --cached | pnpm cspell --no-progress --show-context stdin --cache

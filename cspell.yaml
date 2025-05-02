@@ -1,0 +1,6 @@
+ignorePaths:
+  - "*.svg"
+words:
+  - esbuild
+  - lefthook
+  - senken
