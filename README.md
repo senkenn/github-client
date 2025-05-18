@@ -1,8 +1,8 @@
 # GitHub Client
 
-You can see issues now.
+You can edit GitHub Issues.
 
-TODO: image
+![alt text](img/image.png)
 
 ## Usage
 
