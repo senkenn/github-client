@@ -1,6 +1,6 @@
 # GitHub Client
 
-You can edit GitHub Issues.
+Edit GitHub Issues using a WYSIWYG editor.
 
 ![alt text](img/image.png)
 
