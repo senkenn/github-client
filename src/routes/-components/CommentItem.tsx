@@ -3,17 +3,13 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import {
-  EditorContent,
-  EditorProvider,
-  ReactNodeViewRenderer,
-  useEditor,
-} from "@tiptap/react";
+import { EditorContent, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { htmlToMarkdown, markdownToHtml } from "../-functions/mdHtmlUtils";
 import { CodeBlockComponent } from "./CodeBlockComponent";
+import { MenuBar } from "./MenuBar";
 
 const lowlight = createLowlight(all);
 
@@ -53,6 +49,27 @@ export function CommentItem({ comment, onUpdateComment }: CommentItemProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [content, setContent] = useState(markdownToHtml(comment.body));
+  const [menu, setMenu] = useState<{ top: number; left: number } | null>(null);
+
+  const handleContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    setMenu({ top: event.clientY, left: event.clientX });
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setMenu(null);
+  }, []);
+
+  useEffect(() => {
+    if (menu) {
+      document.addEventListener("click", closeMenu);
+    } else {
+      document.removeEventListener("click", closeMenu);
+    }
+    return () => {
+      document.removeEventListener("click", closeMenu);
+    };
+  }, [menu, closeMenu]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -80,38 +97,47 @@ export function CommentItem({ comment, onUpdateComment }: CommentItemProps) {
 
   const editor = useEditor({
     extensions,
-    content: `
-    <table>
-      <tbody>
-        <tr>
-          <th>Name</th>
-          <th colspan="3">Description</th>
-        </tr>
-        <tr>
-          <td>Cyndi Lauper</td>
-          <td>Singer</td>
-          <td>Songwriter</td>
-          <td>Actress</td>
-        </tr>
-      </tbody>
-    </table>
-  `,
+    content: content,
+    onUpdate: ({ editor }) => {
+      setContent(editor.getHTML());
+    },
   });
+
+  if (!editor) {
+    return null;
+  }
+
   return (
-    <div>
-      <EditorContent editor={editor} />
+    <div
+      className="p-2 border-t border-gray-200"
+      onContextMenu={handleContextMenu}
+    >
+      {menu && (
+        <div
+          style={{
+            position: "fixed",
+            top: menu.top,
+            left: menu.left,
+            zIndex: 1,
+          }}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              closeMenu();
+            }
+          }}
+        >
+          <MenuBar editor={editor} />
+        </div>
+      )}
       <div
         key={comment.id}
         className="border border-gray-300 rounded m-2 p-2 font-mono bg-gray-100 whitespace-pre-wrap"
       >
-        <EditorProvider
-          extensions={extensions}
-          content={content}
-          onUpdate={({ editor }) => setContent(editor.getHTML())}
-        />
+        <EditorContent editor={editor} />
       </div>
 
-      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+      {error && <div className="text-red-500 text-sm">{error}</div>}
 
       <div className="flex justify-end space-x-2">
         <button
