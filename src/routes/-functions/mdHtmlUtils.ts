@@ -76,13 +76,44 @@ export function htmlToMarkdown(html: string): string {
     },
   });
 
-  const markdown = turndownService.turndown(html);
-  // // Replace "-   " at the beginning of lines with "- " to fix extra spacing
-  // .replace(/^- {3}/gm, "- ")
-  // // Normalize nested list indent to two spaces
-  // .replace(/^ {4}-\s+/gm, "  - ")
-  // // Normalize ordered list spacing: convert '1.  ' to '1. '
-  // .replace(/^(\d+)\.\s{2}/gm, "$1. ");
+  let markdown = turndownService
+    .turndown(html)
+    // Trim trailing spaces and normalize line endings
+    // example: `hello  ` -> `hello`
+    .replace(/[ ]+$/gm, "")
+    // Convert 4-space indentation to 2-space for unordered lists
+    // example: `    - ` -> `  - `
+    .replace(/^[ ]{4}(-\s)/gm, "  $1")
+    // Convert 4-space indentation to 3-space for ordered lists
+    // example: `    1. ` -> `   1. `
+    .replace(/^[ ]{4}(\d+\.\s)/gm, "   $1")
+    // Normalize unordered list spacing: ensure single space after bullet
+    // example: `-  item` -> `- item`
+    .replace(/^(\s*)-\s+/gm, "$1- ")
+    // Normalize ordered list spacing: ensure single space after number
+    // example: `1.  item` -> `1. item`
+    .replace(/^(\s*)(\d+)\.\s+/gm, "$1$2. ");
+
+  // Handle mixed nested lists by checking context
+  const lines = markdown.split("\n");
+  let inOrderedList = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Check if we're in an ordered list context
+    if (/^\d+\.\s/.test(line)) {
+      inOrderedList = true;
+    } else if (line.trim() === "" || /^[^\s]/.test(line)) {
+      inOrderedList = false;
+    }
+
+    // If we're in an ordered list context and this is a nested unordered list item
+    if (inOrderedList && /^[ ]{2}-\s/.test(line)) {
+      lines[i] = line.replace(/^[ ]{2}/, "   ");
+    }
+  }
+  markdown = lines.join("\n");
+
   console.log("markdown", markdown); // TODO: ロガーを使う
   return markdown;
 }

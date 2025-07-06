@@ -22,15 +22,39 @@ console.log('Hello, world!');
     },
     {
       description: "ordered list",
-      markdown: `1.  Item 1
-2.  Item 2
-3.  Item 3`,
+      markdown: `1. Item 1
+2. Item 2
+3. Item 3`,
     },
     {
       description: "unordered list",
-      markdown: `-   Item 1
--   Item 2
--   Item 3`,
+      markdown: `- Item 1
+- Item 2
+- Item 3`,
+    },
+    {
+      description: "nested unordered list",
+      markdown: `- Item 1
+  - Nested Item 1
+  - Nested Item 2
+- Item 2
+  - Nested Item 3`,
+    },
+    {
+      description: "nested ordered list",
+      markdown: `1. Item 1
+   1. Nested Item 1
+   2. Nested Item 2
+2. Item 2
+   1. Nested Item 3`,
+    },
+    {
+      description: "mixed nested list",
+      markdown: `1. Item 1
+   - Nested Item 1
+   - Nested Item 2
+2. Item 2
+   - Nested Item 3`,
     },
     {
       description: "simple table",
