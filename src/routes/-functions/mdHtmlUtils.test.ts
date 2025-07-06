@@ -32,6 +32,20 @@ console.log('Hello, world!');
 -   Item 2
 -   Item 3`,
     },
+    {
+      description: "simple table",
+      markdown: `| Name | Age |
+| --- | --- |
+| John | 25 |
+| Jane | 30 |`,
+    },
+    {
+      description: "table with alignment",
+      markdown: `| Left | Center | Right |
+| :--- | :---: | ---: |
+| L1 | C1 | R1 |
+| L2 | C2 | R2 |`,
+    },
   ];
 
   it.each(cases)("should roundtrip $description", ({ markdown }) => {
