@@ -18,7 +18,7 @@
       "recommended": true,
       "suspicious": {
         "noExplicitAny": "warn",
-        "noConsoleLog": "error",
+        // "noConsoleLog": "error",
       },
       "style": {
         "noParameterAssign": "warn",

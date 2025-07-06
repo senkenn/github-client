@@ -20,6 +20,18 @@ console.log('Hello, world!');
 console.log('Hello, world!');
 \`\`\``,
     },
+    {
+      description: "ordered list",
+      markdown: `1.  Item 1
+2.  Item 2
+3.  Item 3`,
+    },
+    {
+      description: "unordered list",
+      markdown: `-   Item 1
+-   Item 2
+-   Item 3`,
+    },
   ];
 
   it.each(cases)("should roundtrip $description", ({ markdown }) => {

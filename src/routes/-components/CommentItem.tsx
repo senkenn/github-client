@@ -1,5 +1,14 @@
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import { EditorProvider, ReactNodeViewRenderer } from "@tiptap/react";
+import Table from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import {
+  EditorContent,
+  EditorProvider,
+  ReactNodeViewRenderer,
+  useEditor,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
 import { useCallback, useMemo, useState } from "react";
@@ -10,6 +19,10 @@ const lowlight = createLowlight(all);
 
 const extensions = [
   StarterKit,
+  Table,
+  TableCell,
+  TableHeader,
+  TableRow,
   CodeBlockLowlight.extend({
     addNodeView() {
       return ReactNodeViewRenderer(CodeBlockComponent);
@@ -65,8 +78,28 @@ export function CommentItem({ comment, onUpdateComment }: CommentItemProps) {
     [comment.body],
   );
 
+  const editor = useEditor({
+    extensions,
+    content: `
+    <table>
+      <tbody>
+        <tr>
+          <th>Name</th>
+          <th colspan="3">Description</th>
+        </tr>
+        <tr>
+          <td>Cyndi Lauper</td>
+          <td>Singer</td>
+          <td>Songwriter</td>
+          <td>Actress</td>
+        </tr>
+      </tbody>
+    </table>
+  `,
+  });
   return (
     <div>
+      <EditorContent editor={editor} />
       <div
         key={comment.id}
         className="border border-gray-300 rounded m-2 p-2 font-mono bg-gray-100 whitespace-pre-wrap"
