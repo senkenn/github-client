@@ -1,6 +1,6 @@
 /// <reference types="vitest/config" />
 import tailwindcss from "@tailwindcss/vite";
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import tanstackRouter from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 
@@ -9,10 +9,10 @@ export default defineConfig({
   test: {
     globals: true,
     // Exclude Playwright component tests from Vitest
-    exclude: ["**/node_modules/**", "**/*.spec.tsx", "**/*.spec.ts"],
+    exclude: ["**/node_modules/**", "**/*.tsx"],
   },
   plugins: [
-    TanStackRouterVite({ autoCodeSplitting: true }),
+    tanstackRouter({ autoCodeSplitting: true }),
     react(),
     tailwindcss(),
   ],
