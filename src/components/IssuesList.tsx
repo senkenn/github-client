@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { formatDateFromIso } from "../lib/dateUtils";
 import { getIssues } from "../lib/github";
 import type { GitHubIssue } from "../types/github";
 
@@ -63,7 +64,7 @@ export function IssuesList({ owner, repo }: IssuesListProps) {
                   <span>{issue.user.login}</span>
                 </div>
                 <span>•</span>
-                <span>{new Date(issue.created_at).toLocaleDateString()}</span>
+                <span>{formatDateFromIso(issue.created_at)}</span>
                 <span>•</span>
                 <span>{issue.comments} comments</span>
               </div>
