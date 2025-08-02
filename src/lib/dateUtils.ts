@@ -16,5 +16,9 @@ export function formatDate(date: Date): string {
  * @returns Formatted date string in yyyy/mm/dd format
  */
 export function formatDateFromIso(isoString: string): string {
-  return formatDate(new Date(isoString));
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+  return formatDate(date);
 }
