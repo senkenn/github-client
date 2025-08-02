@@ -25,5 +25,5 @@ dist-ssr
 
 .env
 
-copilot-instructions.md
+.github/prompts
 .cspellcache
