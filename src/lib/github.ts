@@ -45,7 +45,10 @@ export async function getIssues(
       per_page: 20,
     });
 
-    return response.data as GitHubIssue[];
+    // Filter out pull requests - GitHub API includes PRs in issues endpoint
+    const issuesOnly = response.data.filter((item) => !item.pull_request);
+
+    return issuesOnly as GitHubIssue[];
   } catch (error) {
     console.error("Error fetching issues:", error);
     // フォールバック用のモックデータ
