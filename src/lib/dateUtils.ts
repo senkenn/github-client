@@ -17,7 +17,7 @@ export function formatDate(date: Date): string {
  */
 export function formatDateFromIso(isoString: string): string {
   const date = new Date(isoString);
-  if (isNaN(date.getTime())) {
+  if (Number.isNaN(date.getTime())) {
     return "Invalid date";
   }
   return formatDate(date);
