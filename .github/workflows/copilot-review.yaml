@@ -10,6 +10,8 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - uses: actions/checkout@v4
+
       - name: Add Copilot as reviewer
         run: |
           gh pr edit ${{ github.event.pull_request.number }} --add-reviewer github/copilot
