@@ -8,81 +8,97 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IssuesRouteImport } from './routes/issues'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as IssuesIssueNumberRouteImport } from './routes/issues.$issueNumber'
 
-import { Route as rootRoute } from "./routes/__root";
-import { Route as IndexImport } from "./routes/index";
-
-// Create/Update Routes
-
-const IndexRoute = IndexImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => rootRoute,
-} as any);
-
-// Populate the FileRoutesByPath interface
-
-declare module "@tanstack/react-router" {
-  interface FileRoutesByPath {
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexImport;
-      parentRoute: typeof rootRoute;
-    };
-  }
-}
-
-// Create and export the route tree
+const IssuesRoute = IssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IssuesIssueNumberRoute = IssuesIssueNumberRouteImport.update({
+  id: '/$issueNumber',
+  path: '/$issueNumber',
+  getParentRoute: () => IssuesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
+  '/': typeof IndexRoute
+  '/issues': typeof IssuesRouteWithChildren
+  '/issues/$issueNumber': typeof IssuesIssueNumberRoute
 }
-
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
+  '/': typeof IndexRoute
+  '/issues': typeof IssuesRouteWithChildren
+  '/issues/$issueNumber': typeof IssuesIssueNumberRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute;
-  "/": typeof IndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/issues': typeof IssuesRouteWithChildren
+  '/issues/$issueNumber': typeof IssuesIssueNumberRoute
 }
-
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/";
-  fileRoutesByTo: FileRoutesByTo;
-  to: "/";
-  id: "__root__" | "/";
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/issues' | '/issues/$issueNumber'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/issues' | '/issues/$issueNumber'
+  id: '__root__' | '/' | '/issues' | '/issues/$issueNumber'
+  fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
+  IndexRoute: typeof IndexRoute
+  IssuesRoute: typeof IssuesRouteWithChildren
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-};
-
-export const routeTree = rootRoute
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/issues': {
+      id: '/issues'
+      path: '/issues'
+      fullPath: '/issues'
+      preLoaderRoute: typeof IssuesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/issues/$issueNumber': {
+      id: '/issues/$issueNumber'
+      path: '/$issueNumber'
+      fullPath: '/issues/$issueNumber'
+      preLoaderRoute: typeof IssuesIssueNumberRouteImport
+      parentRoute: typeof IssuesRoute
     }
   }
 }
-ROUTE_MANIFEST_END */
+
+interface IssuesRouteChildren {
+  IssuesIssueNumberRoute: typeof IssuesIssueNumberRoute
+}
+
+const IssuesRouteChildren: IssuesRouteChildren = {
+  IssuesIssueNumberRoute: IssuesIssueNumberRoute,
+}
+
+const IssuesRouteWithChildren =
+  IssuesRoute._addFileChildren(IssuesRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  IssuesRoute: IssuesRouteWithChildren,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
