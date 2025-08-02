@@ -7,7 +7,7 @@ export const Route = createRootRoute({
       <nav className="bg-white shadow border-b border-gray-200 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="text-xl font-bold text-gray-900">
-            GitHub Issues
+            GitHub Client
           </Link>
           <div className="space-x-4">
             <Link
