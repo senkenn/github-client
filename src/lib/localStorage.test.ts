@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { saveOwnerRepo, loadOwnerRepo, clearOwnerRepo } from "./localStorage";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { clearOwnerRepo, loadOwnerRepo, saveOwnerRepo } from "./localStorage";
 
 // Mock localStorage
 const localStorageMock = (() => {
