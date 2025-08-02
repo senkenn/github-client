@@ -95,6 +95,7 @@ export async function getIssueComments(
 }
 
 // モックデータ（API制限やトークンがない場合の代替）
+// Note: Mock data contains only actual issues (no PRs) to demonstrate proper filtering
 const mockIssues: GitHubIssue[] = [
   {
     id: 1,
