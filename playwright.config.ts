@@ -25,6 +25,13 @@ export default defineConfig({
     ctPort: 3100,
   },
 
+  /* Start GitHub API mock server before running tests */
+  webServer: {
+    command: "npx tsx playwright/mock-server.ts",
+    port: 3001,
+    reuseExistingServer: !process.env.CI,
+  },
+
   /* Configure projects for major browsers */
   projects: [
     {
