@@ -23,6 +23,12 @@ export default defineConfig({
 
     /* Port to use for Playwright component endpoint. */
     ctPort: 3100,
+
+    /* 一貫したビューポートサイズ */
+    viewport: { width: 1280, height: 720 },
+
+    /* フォント設定 */
+    locale: "en-US",
   },
 
   /* Start GitHub API mock server before running tests */
@@ -36,7 +42,18 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // フォント一貫性のための設定
+        launchOptions: {
+          args: [
+            "--font-render-hinting=none",
+            "--disable-font-subpixel-positioning",
+            "--disable-gpu-sandbox",
+            "--force-device-scale-factor=1",
+          ],
+        },
+      },
     },
   ],
 });

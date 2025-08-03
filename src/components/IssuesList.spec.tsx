@@ -3,7 +3,14 @@ import { IssuesList } from "./IssuesList";
 
 test("should match visual snapshot", async ({ mount }) => {
   const component = await mount(
-    <IssuesList owner="dummy_owner" repo="dummy_repo" />,
+    <div
+      style={{
+        width: "800px",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+      }}
+    >
+      <IssuesList owner="dummy_owner" repo="dummy_repo" />
+    </div>,
   );
 
   // モックサーバーからデータが読み込まれるまで待機
