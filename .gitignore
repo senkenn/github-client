@@ -25,7 +25,7 @@ dist-ssr
 
 .env
 
-.github/prompts
+copilot-instructions.md
 .cspellcache
 
 # Playwright
