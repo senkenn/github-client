@@ -50,7 +50,7 @@ export async function getIssues(
     const response = await octokit.rest.issues.listForRepo({
       owner: owner || OWNER,
       repo: repo || REPO,
-      state: "open",
+      state: "all",
       per_page: 20,
     });
 
