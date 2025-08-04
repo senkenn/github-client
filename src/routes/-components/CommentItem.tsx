@@ -1,5 +1,5 @@
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import Table from "@tiptap/extension-table";
+import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
@@ -108,34 +108,39 @@ export function CommentItem({ comment, onUpdateComment }: CommentItemProps) {
   }
 
   return (
-    <div
-      className="p-2 border-t border-gray-200"
-      onContextMenu={handleContextMenu}
-    >
-      {menu && (
-        <div
-          style={{
-            position: "fixed",
-            top: menu.top,
-            left: menu.left,
-            zIndex: 1,
-          }}
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              closeMenu();
-            }
-          }}
-        >
-          <MenuBar editor={editor} />
-        </div>
-      )}
-      <div
-        key={comment.id}
-        className="border border-gray-300 rounded m-2 p-2 font-mono bg-gray-100 whitespace-pre-wrap"
+    <div className="p-2 border-t border-gray-200">
+      <button
+        type="button"
+        className="w-full text-left"
+        onContextMenu={handleContextMenu}
       >
-        <EditorContent editor={editor} />
-      </div>
+        {menu && (
+          <div
+            style={{
+              position: "fixed",
+              top: menu.top,
+              left: menu.left,
+              zIndex: 1,
+            }}
+            role="menu"
+            tabIndex={-1}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                closeMenu();
+              }
+            }}
+          >
+            <MenuBar editor={editor} />
+          </div>
+        )}
+        <div
+          key={comment.id}
+          className="border border-gray-300 rounded m-2 p-2 font-mono bg-gray-100 whitespace-pre-wrap"
+        >
+          <EditorContent editor={editor} />
+        </div>
+      </button>
 
       {error && <div className="text-red-500 text-sm">{error}</div>}
 
