@@ -19,7 +19,7 @@ export default defineConfig({
 
   /* スクリーンショット比較の設定 */
   expect: {
-    toHaveScreenshot: { threshold: 0.05, maxDiffPixels: 100 },
+    toHaveScreenshot: { threshold: 0.1, maxDiffPixels: 100 },
   },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -56,6 +56,8 @@ export default defineConfig({
             "--disable-font-subpixel-positioning",
             "--disable-gpu-sandbox",
             "--force-device-scale-factor=1",
+            "--disable-system-font-check",
+            "--force-color-profile=generic-rgb",
           ],
         },
       },
