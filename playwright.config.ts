@@ -17,10 +17,6 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
 
-  /* スクリーンショット比較の設定 */
-  expect: {
-    toHaveScreenshot: { threshold: 0.1, maxDiffPixels: 100 },
-  },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -49,17 +45,6 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        // フォント一貫性のための設定
-        launchOptions: {
-          args: [
-            "--font-render-hinting=none",
-            "--disable-font-subpixel-positioning",
-            "--disable-gpu-sandbox",
-            "--force-device-scale-factor=1",
-            "--disable-system-font-check",
-            "--force-color-profile=generic-rgb",
-          ],
-        },
       },
     },
   ],
