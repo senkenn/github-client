@@ -1,11 +1,11 @@
 import {
   NodeViewContent,
-  type NodeViewProps,
   NodeViewWrapper,
+  type ReactNodeViewProps,
 } from "@tiptap/react";
 import type { ComponentType } from "react";
 
-export const CodeBlockComponent: ComponentType<NodeViewProps> = ({
+export const CodeBlockComponent: ComponentType<ReactNodeViewProps> = ({
   node: {
     attrs: { language: defaultLanguage },
   },
@@ -28,7 +28,7 @@ export const CodeBlockComponent: ComponentType<NodeViewProps> = ({
         ))}
       </select>
       <pre>
-        <NodeViewContent as="code" />
+        <NodeViewContent as="div" />
       </pre>
     </NodeViewWrapper>
   );

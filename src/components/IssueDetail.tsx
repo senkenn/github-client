@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { formatDateFromIso } from "../lib/dateUtils";
 import { getIssue, getIssueComments } from "../lib/github";
 import type { GitHubComment, GitHubIssue } from "../types/github";
 import { TiptapEditor } from "./TiptapEditor";
@@ -115,9 +116,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
                 <span>{issue.user.login}</span>
               </div>
               <span>•</span>
-              <span>
-                opened {new Date(issue.created_at).toLocaleDateString()}
-              </span>
+              <span>opened {formatDateFromIso(issue.created_at)}</span>
               <span>•</span>
               <span>{comments.length} comments</span>
             </div>
@@ -147,7 +146,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
               <div>
                 <span className="font-medium">{issue.user.login}</span>
                 <span className="text-gray-500 text-sm ml-2">
-                  commented on {new Date(issue.created_at).toLocaleDateString()}
+                  commented on {formatDateFromIso(issue.created_at)}
                 </span>
               </div>
             </div>
@@ -183,8 +182,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
                 <div>
                   <span className="font-medium">{comment.user.login}</span>
                   <span className="text-gray-500 text-sm ml-2">
-                    commented on{" "}
-                    {new Date(comment.created_at).toLocaleDateString()}
+                    commented on {formatDateFromIso(comment.created_at)}
                     {comment.updated_at !== comment.created_at && (
                       <span className="ml-1">(edited)</span>
                     )}
