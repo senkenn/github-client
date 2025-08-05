@@ -8,18 +8,26 @@ export const Route = createFileRoute("/")({
 });
 
 function RouteComponent() {
-  const [owner, setOwner] = useState("");
-  const [repo, setRepo] = useState("");
+  // Initialize state with localStorage values or empty strings
+  const [owner, setOwner] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = loadOwnerRepo();
+      return cached.owner;
+    }
+    return "";
+  });
+
+  const [repo, setRepo] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = loadOwnerRepo();
+      return cached.repo;
+    }
+    return "";
+  });
+
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Load cached values from localStorage on component mount
-  useEffect(() => {
-    const cached = loadOwnerRepo();
-    setOwner(cached.owner);
-    setRepo(cached.repo);
-  }, []);
 
   // Save to localStorage whenever owner or repo changes
   useEffect(() => {
