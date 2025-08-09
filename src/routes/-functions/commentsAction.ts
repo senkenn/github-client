@@ -1,4 +1,4 @@
-import { Octokit } from "octokit";
+import { Octokit } from "@octokit/rest";
 import type { IssueParams } from "../-components/CommentItem";
 
 const octokit = new Octokit({
