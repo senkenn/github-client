@@ -158,8 +158,8 @@ test.describe("localStorage persistence for owner/repo form", () => {
     const repoInput = page.locator('input[id="repo"]');
 
     // Type values character by character to simulate real user input
-    await ownerInput.type("google");
-    await repoInput.type("chrome");
+    await ownerInput.fill("google");
+    await repoInput.fill("chrome");
 
     // Wait a moment for the useEffect to trigger
     await page.waitForTimeout(200);
