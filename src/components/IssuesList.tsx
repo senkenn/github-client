@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { formatDateFromIso } from "../lib/dateUtils";
 import { getIssues } from "../lib/github";
 import type { GitHubIssue } from "../types/github";
 
@@ -40,18 +40,18 @@ export function IssuesList({ owner, repo }: IssuesListProps) {
       {issues.map((issue) => (
         <div
           key={issue.id}
+          data-testid="issue-item"
           className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <Link
-                to="/issues/$issueNumber"
-                params={{ issueNumber: issue.number.toString() }}
-                search={{ owner, repo }}
+              {/** TODO: Linkコンポーネントを使用したいが、Link はルーターコンテキストに依存しているため、Playwright の Component Testing がうまく行かない */}
+              <a
+                href={`/issues/${issue.number}?owner=${owner}&repo=${repo}`}
                 className="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-2 block"
               >
                 #{issue.number} {issue.title}
-              </Link>
+              </a>
               <p className="text-gray-600 mb-3 line-clamp-2">{issue.body}</p>
               <div className="flex items-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
@@ -63,7 +63,7 @@ export function IssuesList({ owner, repo }: IssuesListProps) {
                   <span>{issue.user.login}</span>
                 </div>
                 <span>•</span>
-                <span>{new Date(issue.created_at).toLocaleDateString()}</span>
+                <span>{formatDateFromIso(issue.created_at)}</span>
                 <span>•</span>
                 <span>{issue.comments} comments</span>
               </div>
