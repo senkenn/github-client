@@ -12,7 +12,6 @@
     "test": "vitest run",
     "test:ct": "npx @tailwindcss/cli -i ./src/styles.css -o ./playwright/output.css && playwright test --config=playwright-ct.config.ts --reporter=list",
     "test:e2e": "playwright test --config=playwright.config.ts --reporter=list",
-    "test:local": "playwright test tests/localStorage.spec.ts --config=playwright.config.ts --reporter=list",
     "generate": "tsr generate"
   },
   "dependencies": {
