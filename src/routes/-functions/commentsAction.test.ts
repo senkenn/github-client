@@ -1,7 +1,7 @@
-import { Octokit } from "@octokit/rest";
+import { Octokit } from "octokit";
 import { fetchCommentsAction } from "./commentsAction";
 
-vi.mock(import("@octokit/rest"), () => {
+vi.mock(import("octokit"), () => {
   const Octokit = vi.fn();
   Octokit.prototype.rest = {
     issues: {
