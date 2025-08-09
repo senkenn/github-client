@@ -54,7 +54,10 @@ export async function getIssues(
       per_page: 20,
     });
 
-    return response.data as GitHubIssue[];
+    // Filter out pull requests - GitHub API includes PRs in issues endpoint
+    const issuesOnly = response.data.filter((item) => !item.pull_request);
+
+    return issuesOnly as GitHubIssue[];
   } catch (error) {
     throw new Error(
       `Failed to fetch issues: ${error instanceof Error ? error.message : "Unknown error"}`,
