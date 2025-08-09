@@ -1,17 +1,38 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { checkRepositoryExists } from "../lib/github";
+import { loadOwnerRepo, saveOwnerRepo } from "../lib/localStorage";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [owner, setOwner] = useState("");
-  const [repo, setRepo] = useState("");
+  // Initialize state with localStorage values or empty strings
+  const [owner, setOwner] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = loadOwnerRepo();
+      return cached.owner;
+    }
+    return "";
+  });
+
+  const [repo, setRepo] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = loadOwnerRepo();
+      return cached.repo;
+    }
+    return "";
+  });
+
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Save to localStorage whenever owner or repo changes
+  useEffect(() => {
+    saveOwnerRepo(owner, repo);
+  }, [owner, repo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

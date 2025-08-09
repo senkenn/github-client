@@ -10,7 +10,8 @@
     "lint:fix": "biome check --write",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:ct": "npx @tailwindcss/cli -i ./src/styles.css -o ./playwright/output.css && playwright test --reporter=list",
+    "test:ct": "npx @tailwindcss/cli -i ./src/styles.css -o ./playwright/output.css && playwright test --config=playwright-ct.config.ts --reporter=list",
+    "test:e2e": "playwright test --config=playwright.config.ts --reporter=list",
     "generate": "tsr generate"
   },
   "dependencies": {

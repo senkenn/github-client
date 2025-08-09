@@ -1,10 +1,11 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/experimental-ct-react";
 
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./src",
+  testMatch: /.*\.spec\.tsx?$/,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -17,20 +18,23 @@ export default defineConfig({
 
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL for tests */
-    baseURL: "http://localhost:5173",
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
+
+    /* Port to use for Playwright component endpoint. */
+    ctPort: 3100,
+
     /* 一貫したビューポートサイズ */
     viewport: { width: 1280, height: 720 },
+
     /* フォント設定 */
     locale: "en-US",
   },
 
-  /* Start dev server before running tests */
+  /* Start GitHub API mock server before running tests */
   webServer: {
-    command: "npm run dev",
-    port: 5173,
+    command: "npx tsx playwright/mock-server.ts",
+    port: 3001,
     reuseExistingServer: !process.env.CI,
   },
 

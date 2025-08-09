@@ -8,8 +8,8 @@ import { defineConfig } from "vite";
 export default defineConfig({
   test: {
     globals: true,
-    // Exclude Playwright component tests from Vitest
-    exclude: ["**/node_modules/**", "**/*.tsx"],
+    // Exclude Playwright component tests and E2E tests from Vitest
+    exclude: ["**/node_modules/**", "**/*.tsx", "**/tests/**"],
   },
   plugins: [
     tanstackRouter({ autoCodeSplitting: true }),
