@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { IssuesList } from "../components/IssuesList";
 
 type IssuesSearch = {
@@ -6,8 +6,8 @@ type IssuesSearch = {
   repo?: string;
 };
 
-export const Route = createFileRoute("/issues")({
-  component: IssuesPage,
+export const Route = createFileRoute("/issues/")({
+  component: IssuesIndexPage,
   validateSearch: (search: Record<string, unknown>): IssuesSearch => {
     return {
       owner: typeof search.owner === "string" ? search.owner : undefined,
@@ -16,15 +16,8 @@ export const Route = createFileRoute("/issues")({
   },
 });
 
-function IssuesPage() {
+function IssuesIndexPage() {
   const { owner, repo } = Route.useSearch();
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">
-        Issues {owner && repo && `- ${owner}/${repo}`}
-      </h1>
-      <Outlet />
-    </div>
-  );
+  return <IssuesList owner={owner} repo={repo} />;
 }
