@@ -10,10 +10,10 @@
     "editor.defaultFormatter": "biomejs.biome",
   },
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "biomejs.biome",
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "biomejs.biome",
   },
   "json.validate.enable": false,
   "github-actions.workflows.pinned.workflows": [".github/workflows/ci.yml"],
