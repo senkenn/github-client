@@ -1,5 +1,4 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { IssuesList } from "../components/IssuesList";
 
 type IssuesSearch = {
   owner?: string;

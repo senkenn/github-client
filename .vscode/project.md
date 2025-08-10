@@ -21,3 +21,14 @@
 - Playwrightでのコンポーネントテストでは、GitHub API用のdevサーバーを立ち上げる
 - モックサーバーを使用して実際のGitHub APIをシミュレートする
 - テスト環境では`getIssues()`等の関数が自動的にモックサーバーからデータを取得する
+
+## TanStack Router ルーティング方針（issues）
+
+- 親: `src/routes/issues.tsx`
+	- 役割: 共有レイアウト（タイトル、`<Outlet />`）と `validateSearch`（`owner`, `repo`）を定義し、子に共有する
+- インデックス: `src/routes/issues.index.tsx`
+	- 役割: `/issues` の一覧表示（`IssuesList` を描画）
+- 子詳細: `src/routes/issues.$issueNumber.tsx`
+	- 役割: `/issues/:issueNumber` の詳細表示
+
+原則: 子ルートがある場合は親（`issues.tsx`）を残し、レイアウトと検索バリデーションは親で共有する。
