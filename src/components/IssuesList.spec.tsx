@@ -35,9 +35,7 @@ const mockIssues: GitHubIssue[] = [
 ];
 
 test("should match visual snapshot", async ({ mount }) => {
-  const component = await mount(
-    <IssuesList owner="dummy_owner" repo="dummy_repo" issues={mockIssues} />,
-  );
+  const component = await mount(<IssuesList issues={mockIssues} />);
 
   // Wait for component to render with provided data
   await expect(
@@ -48,9 +46,7 @@ test("should match visual snapshot", async ({ mount }) => {
 });
 
 test("should render empty state when no issues provided", async ({ mount }) => {
-  const component = await mount(
-    <IssuesList owner="dummy_owner" repo="dummy_repo" issues={[]} />,
-  );
+  const component = await mount(<IssuesList issues={[]} />);
 
   await expect(component.getByText("No issues found.")).toBeVisible();
 });

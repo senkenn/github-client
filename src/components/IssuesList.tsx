@@ -59,7 +59,11 @@ export function IssuesList({
             <div className="flex-1">
               {/** TODO: Linkコンポーネントを使用したいが、Link はルーターコンテキストに依存しているため、Playwright の Component Testing がうまく行かない */}
               <a
-                href={`/issues/${issue.number}?owner=${owner}&repo=${repo}`}
+                href={
+                  owner && repo
+                    ? `/issues/${issue.number}?owner=${owner}&repo=${repo}`
+                    : "#"
+                }
                 className="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-2 block"
               >
                 #{issue.number} {issue.title}
