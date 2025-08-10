@@ -163,10 +163,6 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
 
       {/* Comments */}
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold text-gray-900">
-          Comments ({comments.length})
-        </h2>
-
         {comments.map((comment) => (
           <div
             key={comment.id}
