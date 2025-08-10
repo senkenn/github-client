@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 import { formatDateFromIso } from "../lib/dateUtils";
-import { getIssues } from "../lib/github";
+import { getIssues, type IssueFilters } from "../lib/github";
 import type { GitHubIssue } from "../types/github";
 
 interface IssuesListProps {
   owner?: string;
   repo?: string;
+  filters?: IssueFilters;
 }
 
-export function IssuesList({ owner, repo }: IssuesListProps) {
+export function IssuesList({ owner, repo, filters }: IssuesListProps) {
   const [issues, setIssues] = useState<GitHubIssue[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchIssues = async () => {
       try {
-        const data = await getIssues(owner, repo);
+        const data = await getIssues(owner, repo, filters);
         setIssues(data);
       } catch (error) {
         console.error("Failed to fetch issues:", error);
@@ -25,7 +26,7 @@ export function IssuesList({ owner, repo }: IssuesListProps) {
     };
 
     fetchIssues();
-  }, [owner, repo]);
+  }, [owner, repo, filters]);
 
   if (loading) {
     return (
