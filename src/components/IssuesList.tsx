@@ -6,13 +6,25 @@ import type { GitHubIssue } from "../types/github";
 interface IssuesListProps {
   owner?: string;
   repo?: string;
+  issues?: GitHubIssue[];
 }
 
-export function IssuesList({ owner, repo }: IssuesListProps) {
-  const [issues, setIssues] = useState<GitHubIssue[]>([]);
-  const [loading, setLoading] = useState(true);
+export function IssuesList({
+  owner,
+  repo,
+  issues: propIssues,
+}: IssuesListProps) {
+  const [issues, setIssues] = useState<GitHubIssue[]>(propIssues || []);
+  const [loading, setLoading] = useState(!propIssues);
 
   useEffect(() => {
+    // If issues are provided as props, don't fetch them
+    if (propIssues) {
+      setIssues(propIssues);
+      setLoading(false);
+      return;
+    }
+
     const fetchIssues = async () => {
       try {
         const data = await getIssues(owner, repo);
@@ -25,7 +37,7 @@ export function IssuesList({ owner, repo }: IssuesListProps) {
     };
 
     fetchIssues();
-  }, [owner, repo]);
+  }, [owner, repo, propIssues]);
 
   if (loading) {
     return (
