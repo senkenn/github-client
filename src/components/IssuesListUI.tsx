@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { formatDateFromIso } from "../lib/dateUtils";
 import type { GitHubIssue } from "../types/github";
 
@@ -31,13 +32,12 @@ export function IssuesListUI({
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              {/** TODO: Linkコンポーネントを使用したいが、Link はルーターコンテキストに依存しているため、Playwright の Component Testing がうまく行かない */}
-              <a
-                href={getIssueHref?.(issue) ?? "#"}
+              <Link
+                to={getIssueHref?.(issue) ?? "#"}
                 className="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-2 block"
               >
                 #{issue.number} {issue.title}
-              </a>
+              </Link>
               <p className="text-gray-600 mb-3 line-clamp-2">{issue.body}</p>
               <div className="flex items-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
