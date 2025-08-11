@@ -81,7 +81,8 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
           The issue #{issueNumber} could not be found.
         </p>
         <Link
-          to="/"
+          to="/issues"
+          search={{ owner, repo }}
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           ← Back to Issues
@@ -95,7 +96,8 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
       {/* Header */}
       <div className="mb-6">
         <Link
-          to="/"
+          to="/issues"
+          search={{ owner, repo }}
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
         >
           ← Back to Issues

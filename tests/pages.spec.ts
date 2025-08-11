@@ -222,7 +222,30 @@ test.describe('Issues list page ("/issues") E2E tests', () => {
   });
 
   test("should search issues by keyword", async ({ page }) => {
+    // Mock API to return all issues first
+    await page.route("**/repos/microsoft/vscode/issues*", async (route) => {
+      const url = route.request().url();
+      if (url.includes("search=")) {
+        // For search requests, return filtered results
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([mockIssues[0]]), // Only return first issue
+        });
+      } else {
+        // For initial load, return all issues
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockIssues),
+        });
+      }
+    });
+
     await page.goto("/issues?owner=microsoft&repo=vscode");
+
+    // Verify all issues are initially displayed
+    await expect(page.getByTestId("issue-item")).toHaveCount(2);
 
     // Enter search term
     const searchInput = page.getByPlaceholder("Search issues...");
@@ -259,9 +282,11 @@ test.describe('Issues list page ("/issues") E2E tests', () => {
 
     await page.goto("/issues?owner=microsoft&repo=vscode");
 
-    // Should show error message or empty state
-    // (Exact behavior depends on error handling implementation)
+    // Should show empty state when API fails - no issues should be displayed
     await expect(page.getByTestId("issue-item")).toHaveCount(0);
+
+    // Should show "No issues found" message when there are no issues
+    await expect(page.getByText("No issues found.")).toBeVisible();
   });
 });
 
@@ -327,8 +352,18 @@ test.describe('Issue detail page ("/issues/[issueNumber]") E2E tests', () => {
 
     await page.goto("/issues/999?owner=microsoft&repo=vscode");
 
-    // Should show error state or redirect
-    // (Exact behavior depends on error handling implementation)
+    // Should show error state with appropriate message
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Issue Not Found" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("The issue #999 could not be found."),
+    ).toBeVisible();
+
+    // Should have a back link to issues
+    await expect(
+      page.getByRole("link", { name: /back.*issues/i }),
+    ).toBeVisible();
   });
 
   test("should navigate back to issues list", async ({ page }) => {
