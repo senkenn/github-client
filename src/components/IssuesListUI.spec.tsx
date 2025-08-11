@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/experimental-ct-react";
 import type { GitHubIssue } from "../types/github";
-import { IssuesList } from "./IssuesList";
+import { IssuesListUI } from "./IssuesListUI";
 
 // Mock data for testing
 const mockIssues: GitHubIssue[] = [
@@ -35,7 +35,7 @@ const mockIssues: GitHubIssue[] = [
 ];
 
 test("should match visual snapshot", async ({ mount }) => {
-  const component = await mount(<IssuesList issues={mockIssues} />);
+  const component = await mount(<IssuesListUI issues={mockIssues} />);
 
   // Wait for component to render with provided data
   await expect(
@@ -46,7 +46,7 @@ test("should match visual snapshot", async ({ mount }) => {
 });
 
 test("should render empty state when no issues provided", async ({ mount }) => {
-  const component = await mount(<IssuesList issues={[]} />);
+  const component = await mount(<IssuesListUI issues={[]} />);
 
   await expect(component.getByText("No issues found.")).toBeVisible();
 });
