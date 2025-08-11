@@ -23,6 +23,13 @@
   - E2E（Playwright）: 画面遷移・レンダリング・ネットワークの統合
   - 必要に応じてルーティングや表示要素はE2Eで検証
 
+## コンポーネント分割方針（Container / Presentational）
+
+- データ取得や副作用は Container コンポーネントに集約する
+- UI は Presentational コンポーネント（UI-only）に切り出す
+- 既存のエクスポートは可能な限り維持しつつ、UI は `*UI.tsx` の命名で配置する
+- コンポーネントテストでは UI コンポーネントを直接マウントしてスナップショットを取る
+
 ## TanStack Router ルーティング方針（issues）
 
 - 親: `src/routes/issues.tsx`
