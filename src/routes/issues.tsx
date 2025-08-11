@@ -1,5 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { IssuesList } from "../components/IssuesList";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 type IssuesSearch = {
   owner?: string;
@@ -24,7 +23,7 @@ function IssuesPage() {
       <h1 className="text-3xl font-bold text-gray-900 mb-6">
         Issues {owner && repo && `- ${owner}/${repo}`}
       </h1>
-      <IssuesList owner={owner} repo={repo} />
+      <Outlet />
     </div>
   );
 }

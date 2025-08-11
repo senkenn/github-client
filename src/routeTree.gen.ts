@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as IssuesIndexRouteImport } from './routes/issues.index'
 import { Route as IssuesIssueNumberRouteImport } from './routes/issues.$issueNumber'
 
 const IssuesRoute = IssuesRouteImport.update({
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IssuesIndexRoute = IssuesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => IssuesRoute,
+} as any)
 const IssuesIssueNumberRoute = IssuesIssueNumberRouteImport.update({
   id: '/$issueNumber',
   path: '/$issueNumber',
@@ -33,24 +39,26 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/issues': typeof IssuesRouteWithChildren
   '/issues/$issueNumber': typeof IssuesIssueNumberRoute
+  '/issues/': typeof IssuesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/issues': typeof IssuesRouteWithChildren
   '/issues/$issueNumber': typeof IssuesIssueNumberRoute
+  '/issues': typeof IssuesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/issues': typeof IssuesRouteWithChildren
   '/issues/$issueNumber': typeof IssuesIssueNumberRoute
+  '/issues/': typeof IssuesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/issues' | '/issues/$issueNumber'
+  fullPaths: '/' | '/issues' | '/issues/$issueNumber' | '/issues/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/issues' | '/issues/$issueNumber'
-  id: '__root__' | '/' | '/issues' | '/issues/$issueNumber'
+  to: '/' | '/issues/$issueNumber' | '/issues'
+  id: '__root__' | '/' | '/issues' | '/issues/$issueNumber' | '/issues/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -74,6 +82,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/issues/': {
+      id: '/issues/'
+      path: '/'
+      fullPath: '/issues/'
+      preLoaderRoute: typeof IssuesIndexRouteImport
+      parentRoute: typeof IssuesRoute
+    }
     '/issues/$issueNumber': {
       id: '/issues/$issueNumber'
       path: '/$issueNumber'
@@ -86,10 +101,12 @@ declare module '@tanstack/react-router' {
 
 interface IssuesRouteChildren {
   IssuesIssueNumberRoute: typeof IssuesIssueNumberRoute
+  IssuesIndexRoute: typeof IssuesIndexRoute
 }
 
 const IssuesRouteChildren: IssuesRouteChildren = {
   IssuesIssueNumberRoute: IssuesIssueNumberRoute,
+  IssuesIndexRoute: IssuesIndexRoute,
 }
 
 const IssuesRouteWithChildren =
