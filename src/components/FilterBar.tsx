@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { parseGitHubLikeQuery } from "../lib/searchParser";
 
 interface FilterBarProps {
   currentState: "open" | "closed" | "all";
@@ -39,7 +40,12 @@ export function FilterBar({
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleFilterChange(undefined, searchInput, authorInput);
+    // Parse GitHub-like query from the main search box
+    const parsed = parseGitHubLikeQuery(searchInput);
+    // Prefer explicit author input if provided; otherwise use parsed.author
+    const author = authorInput || parsed.author;
+    const nextSearch = parsed.text ?? "";
+    handleFilterChange(parsed.state, nextSearch, author);
   };
 
   const clearFilters = () => {
