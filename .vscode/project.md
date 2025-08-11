@@ -22,6 +22,13 @@
 - モックサーバーを使用して実際のGitHub APIをシミュレートする
 - テスト環境では`getIssues()`等の関数が自動的にモックサーバーからデータを取得する
 
+## コンポーネント分割方針（Container / Presentational）
+
+- データ取得や副作用は Container コンポーネントに集約する
+- UI は Presentational コンポーネント（UI-only）に切り出す
+- 既存のエクスポートは可能な限り維持しつつ、UI は `*UI.tsx` の命名で配置する
+- コンポーネントテストでは UI コンポーネントを直接マウントしてスナップショットを取る
+
 ## TanStack Router ルーティング方針（issues）
 
 - 親: `src/routes/issues.tsx`
