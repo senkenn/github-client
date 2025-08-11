@@ -26,7 +26,3 @@ pre-commit:
       glob: "*.{js,ts,jsx,tsx}"
       run: |
         NO_COLOR=1 npm test
-    test:ct:
-      glob: "*.{js,ts,jsx,tsx}"
-      run: |
-        FORCE_COLOR=0 npm run test:ct

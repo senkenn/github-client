@@ -156,8 +156,9 @@ describe("github.ts", () => {
       expect(mockListForRepo).toHaveBeenCalledWith({
         owner: "microsoft",
         repo: "vscode",
-        state: "all",
-        per_page: 20,
+        state: "open",
+        creator: undefined,
+        per_page: 100,
       });
     });
 
@@ -168,6 +169,136 @@ describe("github.ts", () => {
       await expect(getIssues("test-owner", "test-repo")).rejects.toThrow(
         "Failed to fetch issues: API Error",
       );
+    });
+
+    it("should apply state filter", async () => {
+      const mockResponse = { data: [] };
+      mockListForRepo.mockResolvedValueOnce(mockResponse);
+
+      await getIssues("test-owner", "test-repo", { state: "closed" });
+
+      expect(mockListForRepo).toHaveBeenCalledWith({
+        owner: "test-owner",
+        repo: "test-repo",
+        state: "closed",
+        creator: undefined,
+        per_page: 100,
+      });
+    });
+
+    it("should apply author filter", async () => {
+      const mockResponse = { data: [] };
+      mockListForRepo.mockResolvedValueOnce(mockResponse);
+
+      await getIssues("test-owner", "test-repo", { author: "testuser" });
+
+      expect(mockListForRepo).toHaveBeenCalledWith({
+        owner: "test-owner",
+        repo: "test-repo",
+        state: "open",
+        creator: "testuser",
+        per_page: 100,
+      });
+    });
+
+    it("should filter issues by search term in title", async () => {
+      const mockResponse = {
+        data: [
+          {
+            id: 1,
+            number: 1,
+            title: "Bug in authentication",
+            body: "Description of the bug",
+            state: "open",
+            created_at: "2024-01-01T00:00:00Z",
+            updated_at: "2024-01-01T00:00:00Z",
+            user: { login: "user1", avatar_url: "avatar1.jpg" },
+            comments: 0,
+          },
+          {
+            id: 2,
+            number: 2,
+            title: "Feature request for UI",
+            body: "New feature description",
+            state: "open",
+            created_at: "2024-01-01T00:00:00Z",
+            updated_at: "2024-01-01T00:00:00Z",
+            user: { login: "user2", avatar_url: "avatar2.jpg" },
+            comments: 1,
+          },
+        ],
+      };
+      mockListForRepo.mockResolvedValueOnce(mockResponse);
+
+      const result = await getIssues("test-owner", "test-repo", {
+        search: "bug",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].title).toBe("Bug in authentication");
+    });
+
+    it("should filter issues by search term in body", async () => {
+      const mockResponse = {
+        data: [
+          {
+            id: 1,
+            number: 1,
+            title: "Issue title",
+            body: "This has authentication problems",
+            state: "open",
+            created_at: "2024-01-01T00:00:00Z",
+            updated_at: "2024-01-01T00:00:00Z",
+            user: { login: "user1", avatar_url: "avatar1.jpg" },
+            comments: 0,
+          },
+          {
+            id: 2,
+            number: 2,
+            title: "Other issue",
+            body: "This is different",
+            state: "open",
+            created_at: "2024-01-01T00:00:00Z",
+            updated_at: "2024-01-01T00:00:00Z",
+            user: { login: "user2", avatar_url: "avatar2.jpg" },
+            comments: 1,
+          },
+        ],
+      };
+      mockListForRepo.mockResolvedValueOnce(mockResponse);
+
+      const result = await getIssues("test-owner", "test-repo", {
+        search: "authentication",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].body).toBe("This has authentication problems");
+    });
+
+    it("should be case-insensitive when searching", async () => {
+      const mockResponse = {
+        data: [
+          {
+            id: 1,
+            number: 1,
+            title: "BUG in Authentication",
+            body: "Description",
+            state: "open",
+            created_at: "2024-01-01T00:00:00Z",
+            updated_at: "2024-01-01T00:00:00Z",
+            user: { login: "user1", avatar_url: "avatar1.jpg" },
+            comments: 0,
+          },
+        ],
+      };
+      mockListForRepo.mockResolvedValueOnce(mockResponse);
+
+      const result = await getIssues("test-owner", "test-repo", {
+        search: "bug",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].title).toBe("BUG in Authentication");
     });
   });
 

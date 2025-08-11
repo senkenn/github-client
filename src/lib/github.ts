@@ -42,20 +42,38 @@ export async function checkRepositoryExists(
   }
 }
 
+export interface IssueFilters {
+  state?: "open" | "closed" | "all";
+  search?: string;
+  author?: string;
+}
+
 export async function getIssues(
   owner?: string,
   repo?: string,
+  filters?: IssueFilters,
 ): Promise<GitHubIssue[]> {
   try {
     const response = await octokit.rest.issues.listForRepo({
       owner: owner || OWNER,
       repo: repo || REPO,
-      state: "all",
-      per_page: 20,
+      state: filters?.state || "open", // Default to open issues
+      creator: filters?.author,
+      per_page: 100, // Increase to support client-side search filtering
     });
 
     // Filter out pull requests - GitHub API includes PRs in issues endpoint
-    const issuesOnly = response.data.filter((item) => !item.pull_request);
+    let issuesOnly = response.data.filter((item) => !item.pull_request);
+
+    // Client-side search filtering if search term is provided
+    if (filters?.search) {
+      const searchTerm = filters.search.toLowerCase();
+      issuesOnly = issuesOnly.filter(
+        (issue) =>
+          issue.title.toLowerCase().includes(searchTerm) ||
+          issue.body?.toLowerCase().includes(searchTerm),
+      );
+    }
 
     return issuesOnly as GitHubIssue[];
   } catch (error) {

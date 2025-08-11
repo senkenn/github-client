@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getIssues } from "../lib/github";
+import { getIssues, type IssueFilters } from "../lib/github";
 import type { GitHubIssue } from "../types/github";
 import { IssuesListUI } from "./IssuesListUI";
 
@@ -7,11 +7,13 @@ interface IssuesListProps {
   owner?: string;
   repo?: string;
   issues?: GitHubIssue[];
+  filters?: IssueFilters;
 }
 
 export function IssuesList({
   owner,
   repo,
+  filters,
   issues: propIssues,
 }: IssuesListProps) {
   const [issues, setIssues] = useState<GitHubIssue[]>(propIssues || []);
@@ -30,7 +32,7 @@ export function IssuesList({
     if (propIssues) return;
     const fetchIssues = async () => {
       try {
-        const data = await getIssues(owner, repo);
+        const data = await getIssues(owner, repo, filters);
         setIssues(data);
       } catch (error) {
         console.error("Failed to fetch issues:", error);
@@ -40,7 +42,7 @@ export function IssuesList({
     };
 
     fetchIssues();
-  }, [owner, repo, propIssues]);
+  }, [owner, repo, filters, propIssues]);
 
   return (
     <IssuesListUI

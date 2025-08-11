@@ -3,6 +3,9 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 type IssuesSearch = {
   owner?: string;
   repo?: string;
+  state?: "open" | "closed" | "all";
+  search?: string;
+  author?: string;
 };
 
 export const Route = createFileRoute("/issues")({
@@ -11,6 +14,14 @@ export const Route = createFileRoute("/issues")({
     return {
       owner: typeof search.owner === "string" ? search.owner : undefined,
       repo: typeof search.repo === "string" ? search.repo : undefined,
+      state:
+        search.state === "open" ||
+        search.state === "closed" ||
+        search.state === "all"
+          ? search.state
+          : "open", // Default to open issues
+      search: typeof search.search === "string" ? search.search : undefined,
+      author: typeof search.author === "string" ? search.author : undefined,
     };
   },
 });

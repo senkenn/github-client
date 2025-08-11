@@ -16,11 +16,12 @@
 - `src/index.css`では`@import "tailwindcss";`を一度だけ記述
 - npmを使用する場合、pnpmのlock fileとnode_modulesを削除してから再インストール
 
-## Playwright Component Testing
+## テスト戦略の更新
 
-- Playwrightでのコンポーネントテストでは、GitHub API用のdevサーバーを立ち上げる
-- モックサーバーを使用して実際のGitHub APIをシミュレートする
-- テスト環境では`getIssues()`等の関数が自動的にモックサーバーからデータを取得する
+- コンポーネントテストは削除（維持コスト削減のため）。以後は以下で担保する:
+  - ユニットテスト（Vitest）: ロジック・ユーティリティ・パーサ等
+  - E2E（Playwright）: 画面遷移・レンダリング・ネットワークの統合
+  - 必要に応じてルーティングや表示要素はE2Eで検証
 
 ## コンポーネント分割方針（Container / Presentational）
 
@@ -49,3 +50,13 @@ DRY: インデックスや子ルートでは検索バリデーションを重複
   - `/issues?owner=...&repo=...` で一覧を表示（`data-testid="issue-item"` を 2 件想定）
   - `/issues/:number?owner=...&repo=...` で詳細を表示（h1 に `#<number> <title>` が出る）
 - ネットワークは `api.github.com` の該当エンドポイントを `page.route` でモックし、安定化する
+
+## 検索UI（GitHubライク）
+
+- 検索ボックスは GitHub ライクなクエリをサポートする
+  - is:open / is:closed / is:all を解釈して state を変更する
+  - author:`login` を解釈して author フィルターに反映する
+  - 残りはフリーテキスト検索（タイトル/本文のクライアントサイドフィルタ）
+- 既存の Author 入力欄がある場合は、同欄の値を優先（検索クエリ側の author は補助）
+- 実装: `src/lib/searchParser.ts`（ユニットテスト: `src/lib/searchParser.test.ts`）を使用
+- 互換性: is:issue / is:pr は無視（Issues API は PR を含むが、アプリ側で PR を除外しているため）
