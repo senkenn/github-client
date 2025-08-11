@@ -40,6 +40,8 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
+        // Use system Chrome if Playwright browser fails
+        channel: "chrome",
       },
     },
   ],
