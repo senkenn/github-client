@@ -54,7 +54,18 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
     );
     // ここで実際のAPI更新を行う
     console.log("Updating comment:", commentId, newContent);
-    updateComment(owner || "", repo || "", commentId, newContent);
+    try {
+      await updateComment(owner || "", repo || "", commentId, newContent);
+    } catch (e) {
+      console.error("Failed to update comment", e);
+      // Revert on failure by refetching comments
+      try {
+        const refreshedComments = await getIssueComments(issueNumber, owner, repo);
+        setComments(refreshedComments);
+      } catch (inner) {
+        console.error("Failed to refetch comments after update failure", inner);
+      }
+    }
   };
 
   const handleUpdateIssueBody = async (newContent: string) => {
