@@ -138,3 +138,23 @@ export async function updateComment(
     throw error;
   }
 }
+
+export async function updateIssueBody(
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  updatedMarkdown: string,
+): Promise<GitHubIssue> {
+  try {
+    const response = await octokit.rest.issues.update({
+      owner,
+      repo,
+      issue_number: issueNumber,
+      body: updatedMarkdown,
+    });
+    return response.data as GitHubIssue;
+  } catch (error) {
+    console.error("Error updating issue body:", error);
+    throw error;
+  }
+}

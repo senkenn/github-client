@@ -67,7 +67,10 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg bg-white">
+    <div
+      className="border border-gray-200 rounded-lg bg-white"
+      data-testid="tiptap-editor"
+    >
       {isEditing && (
         <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-gray-50">
           <div className="flex space-x-2">
