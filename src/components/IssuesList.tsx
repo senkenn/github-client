@@ -45,14 +45,6 @@ export function IssuesList({
   }, [owner, repo, filters, propIssues]);
 
   return (
-    <IssuesListUI
-      issues={issues}
-      loading={loading}
-      getIssueHref={(i) =>
-        owner && repo
-          ? `/issues/${i.number}?owner=${owner}&repo=${repo}`
-          : undefined
-      }
-    />
+    <IssuesListUI issues={issues} loading={loading} owner={owner} repo={repo} />
   );
 }

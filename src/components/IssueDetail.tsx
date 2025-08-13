@@ -40,7 +40,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
     fetchData();
   }, [issueNumber, owner, repo]);
 
-  const handleUpdateComment = (commentId: number, newContent: string) => {
+  const handleUpdateComment = async (commentId: number, newContent: string) => {
     setComments((prev) =>
       prev.map((comment) =>
         comment.id === commentId
@@ -60,7 +60,11 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
       console.error("Failed to update comment", e);
       // Revert on failure by refetching comments
       try {
-        const refreshedComments = await getIssueComments(issueNumber, owner, repo);
+        const refreshedComments = await getIssueComments(
+          issueNumber,
+          owner,
+          repo,
+        );
         setComments(refreshedComments);
       } catch (inner) {
         console.error("Failed to refetch comments after update failure", inner);

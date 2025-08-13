@@ -450,7 +450,9 @@ test.describe("Cross-page navigation E2E tests", () => {
     await page.getByTestId("issue-item").first().getByRole("link").click();
 
     // Should be on issue detail page
-    await expect(page).toHaveURL("/issues/123?owner=microsoft&repo=vscode");
+    await expect(page).toHaveURL(
+      /\/issues\/123\?.*owner=microsoft.*repo=vscode/,
+    );
     await expect(
       page.getByRole("heading", { level: 1, name: /#123\s+Test Issue 1/ }),
     ).toBeVisible();
