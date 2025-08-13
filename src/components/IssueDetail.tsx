@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { formatDateFromIso } from "../lib/dateUtils";
-import { getIssue, getIssueComments } from "../lib/github";
+import { getIssue, getIssueComments, updateComment } from "../lib/github";
 import type { GitHubComment, GitHubIssue } from "../types/github";
 import { TiptapEditor } from "./TiptapEditor";
 
@@ -49,9 +49,10 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
     );
     // ここで実際のAPI更新を行う
     console.log("Updating comment:", commentId, newContent);
+    updateComment(owner || "", repo || "", commentId, newContent);
   };
 
-  const handleUpdateIssueBody = (newContent: string) => {
+  const handleUpdateIssueBody = (id: number, newContent: string) => {
     if (issue) {
       setIssue((prev) =>
         prev
@@ -59,7 +60,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
           : null,
       );
       // ここで実際のAPI更新を行う
-      console.log("Updating issue body:", newContent);
+      updateComment(owner || "", repo || "", id, newContent);
     }
   };
 
@@ -154,7 +155,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
           <div className="p-4">
             <TiptapEditor
               content={issue.body}
-              onSave={(content) => handleUpdateIssueBody(content)}
+              onSave={(content) => handleUpdateIssueBody(issue.id, content)}
               onCancel={() => {}}
             />
           </div>
