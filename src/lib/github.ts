@@ -5,17 +5,8 @@ import type { GitHubComment, GitHubIssue } from "../types/github";
 const OWNER = "microsoft";
 const REPO = "vscode";
 
-// テスト環境ではモックサーバーを使用
-// Playwrightコンポーネントテストの場合、location.hostnameでctPort (3100) を検出
-const isTestEnv =
-  typeof window !== "undefined" &&
-  window.location.hostname === "localhost" &&
-  window.location.port === "3100";
-const baseUrl = isTestEnv ? "http://localhost:3001" : undefined;
-
 const octokit = new Octokit({
-  baseUrl,
-  auth: import.meta.env.VITE_GITHUB_TOKEN, // 必要に応じてトークンを設定
+  auth: import.meta.env.VITE_GITHUB_TOKEN,
 });
 
 export async function checkRepositoryExists(
@@ -120,5 +111,50 @@ export async function getIssueComments(
     throw new Error(
       `Failed to fetch comments for issue ${issueNumber}: ${error instanceof Error ? error.message : "Unknown error"}`,
     );
+  }
+}
+
+export async function updateComment(
+  owner: string,
+  repo: string,
+  commentId: number,
+  updatedMarkdown: string,
+) {
+  try {
+    const response = await octokit.rest.issues.updateComment({
+      owner,
+      repo,
+      comment_id: commentId,
+      body: updatedMarkdown,
+    });
+    return {
+      id: response.data.id,
+      body: response.data.body,
+      user: { login: response.data.user?.login ?? "unknown" },
+      updated_at: response.data.updated_at,
+    };
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    throw error;
+  }
+}
+
+export async function updateIssueBody(
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  updatedMarkdown: string,
+): Promise<GitHubIssue> {
+  try {
+    const response = await octokit.rest.issues.update({
+      owner,
+      repo,
+      issue_number: issueNumber,
+      body: updatedMarkdown,
+    });
+    return response.data as GitHubIssue;
+  } catch (error) {
+    console.error("Error updating issue body:", error);
+    throw error;
   }
 }

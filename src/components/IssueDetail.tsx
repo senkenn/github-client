@@ -1,7 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { formatDateFromIso } from "../lib/dateUtils";
-import { getIssue, getIssueComments } from "../lib/github";
+import {
+  getIssue,
+  getIssueComments,
+  updateComment,
+  updateIssueBody,
+} from "../lib/github";
 import type { GitHubComment, GitHubIssue } from "../types/github";
 import { TiptapEditor } from "./TiptapEditor";
 
@@ -49,17 +54,39 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
     );
     // ここで実際のAPI更新を行う
     console.log("Updating comment:", commentId, newContent);
+    try {
+      await updateComment(owner || "", repo || "", commentId, newContent);
+    } catch (e) {
+      console.error("Failed to update comment", e);
+      // Revert on failure by refetching comments
+      try {
+        const refreshedComments = await getIssueComments(issueNumber, owner, repo);
+        setComments(refreshedComments);
+      } catch (inner) {
+        console.error("Failed to refetch comments after update failure", inner);
+      }
+    }
   };
 
-  const handleUpdateIssueBody = (newContent: string) => {
-    if (issue) {
-      setIssue((prev) =>
-        prev
-          ? { ...prev, body: newContent, updated_at: new Date().toISOString() }
-          : null,
-      );
-      // ここで実際のAPI更新を行う
-      console.log("Updating issue body:", newContent);
+  const handleUpdateIssueBody = async (newContent: string) => {
+    if (!issue) return;
+    // Optimistic update
+    setIssue((prev) =>
+      prev
+        ? { ...prev, body: newContent, updated_at: new Date().toISOString() }
+        : null,
+    );
+    try {
+      await updateIssueBody(owner || "", repo || "", issue.number, newContent);
+    } catch (e) {
+      console.error("Failed to update issue body", e);
+      // Revert on failure by refetching
+      try {
+        const refreshed = await getIssue(issue.number, owner, repo);
+        setIssue(refreshed);
+      } catch (inner) {
+        console.error("Failed to refetch issue after update failure", inner);
+      }
     }
   };
 
