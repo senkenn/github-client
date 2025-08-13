@@ -1,6 +1,31 @@
-import { EditorContent, useEditor } from "@tiptap/react";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import {
+  Table,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@tiptap/extension-table";
+import { EditorContent, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { all, createLowlight } from "lowlight";
 import { useState } from "react";
+import { htmlToMarkdown, markdownToHtml } from "../lib/mdHtmlUtils";
+import { CodeBlockComponent } from "./CodeBlockComponent";
+
+const lowlight = createLowlight(all);
+
+const extensions = [
+  StarterKit,
+  Table,
+  TableCell,
+  TableHeader,
+  TableRow,
+  CodeBlockLowlight.extend({
+    addNodeView() {
+      return ReactNodeViewRenderer(CodeBlockComponent);
+    },
+  }).configure({ lowlight }),
+];
 
 interface TiptapEditorProps {
   content: string;
@@ -12,8 +37,8 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   const editor = useEditor({
-    extensions: [StarterKit],
-    content,
+    extensions,
+    content: markdownToHtml(content),
     editorProps: {
       attributes: {
         class:
@@ -24,14 +49,14 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
 
   const handleSave = () => {
     if (editor) {
-      onSave(editor.getHTML());
+      onSave(htmlToMarkdown(editor.getHTML()));
       setIsEditing(false);
     }
   };
 
   const handleCancel = () => {
     if (editor) {
-      editor.commands.setContent(content);
+      editor.commands.setContent(markdownToHtml(content));
       setIsEditing(false);
     }
     onCancel();
@@ -42,7 +67,10 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg bg-white">
+    <div
+      className="border border-gray-200 rounded-lg bg-white"
+      data-testid="tiptap-editor"
+    >
       {isEditing && (
         <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-gray-50">
           <div className="flex space-x-2">
