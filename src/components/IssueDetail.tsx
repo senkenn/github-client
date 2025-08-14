@@ -172,6 +172,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
               content={issue.body}
               onSave={(content) => handleUpdateIssueBody(content)}
               onCancel={() => {}}
+              autoEdit={true}
             />
           </div>
         </div>
@@ -203,6 +204,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
                 content={comment.body}
                 onSave={(content) => handleUpdateComment(comment.id, content)}
                 onCancel={() => {}}
+                autoEdit={true}
               />
             </div>
           </div>

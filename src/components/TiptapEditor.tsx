@@ -31,10 +31,17 @@ interface TiptapEditorProps {
   content: string;
   onSave: (content: string) => void;
   onCancel: () => void;
+  autoEdit?: boolean;
 }
 
-export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
-  const [isEditing, setIsEditing] = useState(false);
+export function TiptapEditor({
+  content,
+  onSave,
+  onCancel,
+  autoEdit = false,
+}: TiptapEditorProps) {
+  const [isEditing, setIsEditing] = useState(autoEdit);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const editor = useEditor({
     extensions,
@@ -45,12 +52,18 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
           "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] p-4 border border-gray-300 rounded-lg",
       },
     },
+    onUpdate: ({ editor }) => {
+      // Check if content has changed from original
+      const currentContent = htmlToMarkdown(editor.getHTML());
+      setHasChanges(currentContent.trim() !== content.trim());
+    },
   });
 
   const handleSave = () => {
     if (editor) {
       onSave(htmlToMarkdown(editor.getHTML()));
       setIsEditing(false);
+      setHasChanges(false);
     }
   };
 
@@ -58,6 +71,7 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
     if (editor) {
       editor.commands.setContent(markdownToHtml(content));
       setIsEditing(false);
+      setHasChanges(false);
     }
     onCancel();
   };
@@ -123,7 +137,12 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
             <button
               type="button"
               onClick={handleSave}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+              disabled={!hasChanges}
+              className={`px-4 py-2 rounded text-sm ${
+                hasChanges
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
             >
               Save
             </button>
