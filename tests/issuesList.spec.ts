@@ -217,8 +217,8 @@ test.describe("IssuesList component E2E tests", () => {
       // Navigate to issues page
       await page.goto("/issues?owner=facebook&repo=react&state=open");
 
-      // Wait for error handling to complete
-      await page.waitForTimeout(1000);
+      // Wait for error handling to complete by waiting for the error message
+      await expect(page.getByText("No issues found.")).toBeVisible();
 
       // Check that loading spinner is not shown after error
       await expect(
@@ -243,9 +243,6 @@ test.describe("IssuesList component E2E tests", () => {
 
       // Navigate to issues page
       await page.goto("/issues?owner=facebook&repo=react&state=open");
-
-      // Wait for API call to complete
-      await page.waitForTimeout(500);
 
       // Check that "No issues found" message is displayed
       await expect(page.getByText("No issues found.")).toBeVisible();

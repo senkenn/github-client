@@ -175,8 +175,7 @@ export async function updateComment(
       updated_at: response.data.updated_at,
     };
   } catch (error) {
-    console.error("Error updating comment:", error);
-    throw error;
+    handleApiError(`update comment ${commentId}`, error);
   }
 }
 
@@ -203,7 +202,6 @@ export async function updateIssueBody(
     });
     return response.data as GitHubIssue;
   } catch (error) {
-    console.error("Error updating issue body:", error);
-    throw error;
+    handleApiError(`update issue ${issueNumber} body`, error);
   }
 }
