@@ -25,4 +25,9 @@ pre-commit:
     test:
       glob: "*.{js,ts,jsx,tsx}"
       run: |
-        NO_COLOR=1 npm test
+        NO_COLOR=1 npm test -- {staged_files}
+
+    test-e2e:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: |
+        FORCE_COLOR=0 npm run test:e2e -- {staged_files}
