@@ -115,7 +115,7 @@ export async function getIssues(
  * @param issueNumber - Issue number to fetch
  * @param owner - Repository owner username
  * @param repo - Repository name
- * @returns Promise that resolves to the GitHub issue if not found
+ * @returns Promise that resolves to the GitHub issue if found, or throws an error if not found or on API failure
  */
 export async function getIssue(
   issueNumber: number,
