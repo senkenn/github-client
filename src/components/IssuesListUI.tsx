@@ -1,6 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { formatDateFromIso } from "../lib/dateUtils";
 import type { GitHubIssue } from "../types/github";
+import { IssueBadge } from "./IssueBadge";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { UserAvatar } from "./UserAvatar";
 
 export interface IssuesListUIProps {
   issues: GitHubIssue[];
@@ -16,11 +19,7 @@ export function IssuesListUI({
   repo,
 }: IssuesListUIProps) {
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
@@ -44,11 +43,7 @@ export function IssuesListUI({
               <p className="text-gray-600 mb-3 line-clamp-2">{issue.body}</p>
               <div className="flex items-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
-                  <img
-                    src={issue.user.avatar_url}
-                    alt={issue.user.login}
-                    className="w-5 h-5 rounded-full"
-                  />
+                  <UserAvatar user={issue.user} size="sm" />
                   <span>{issue.user.login}</span>
                 </div>
                 <span>•</span>
@@ -57,15 +52,7 @@ export function IssuesListUI({
                 <span>{issue.comments} comments</span>
               </div>
             </div>
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                issue.state === "open"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}
-            >
-              {issue.state}
-            </span>
+            <IssueBadge state={issue.state} size="sm" />
           </div>
         </div>
       ))}

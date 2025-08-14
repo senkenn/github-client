@@ -8,7 +8,10 @@ import {
   updateIssueBody,
 } from "../lib/github";
 import type { GitHubComment, GitHubIssue } from "../types/github";
+import { IssueBadge } from "./IssueBadge";
+import { LoadingSpinner } from "./LoadingSpinner";
 import { TiptapEditor } from "./TiptapEditor";
+import { UserAvatar } from "./UserAvatar";
 
 interface IssueDetailProps {
   issueNumber: number;
@@ -95,11 +98,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!issue) {
@@ -141,11 +140,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
             </h1>
             <div className="flex items-center space-x-4 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
-                <img
-                  src={issue.user.avatar_url}
-                  alt={issue.user.login}
-                  className="w-6 h-6 rounded-full"
-                />
+                <UserAvatar user={issue.user} size="sm" />
                 <span>{issue.user.login}</span>
               </div>
               <span>•</span>
@@ -154,15 +149,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
               <span>{comments.length} comments</span>
             </div>
           </div>
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              issue.state === "open"
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {issue.state}
-          </span>
+          <IssueBadge state={issue.state} />
         </div>
       </div>
 
@@ -171,11 +158,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
         <div className="bg-white border border-gray-200 rounded-lg">
           <div className="p-4 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center space-x-2">
-              <img
-                src={issue.user.avatar_url}
-                alt={issue.user.login}
-                className="w-8 h-8 rounded-full"
-              />
+              <UserAvatar user={issue.user} size="lg" />
               <div>
                 <span className="font-medium">{issue.user.login}</span>
                 <span className="text-gray-500 text-sm ml-2">
@@ -203,11 +186,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
           >
             <div className="p-4 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center space-x-2">
-                <img
-                  src={comment.user.avatar_url}
-                  alt={comment.user.login}
-                  className="w-8 h-8 rounded-full"
-                />
+                <UserAvatar user={comment.user} size="lg" />
                 <div>
                   <span className="font-medium">{comment.user.login}</span>
                   <span className="text-gray-500 text-sm ml-2">
