@@ -91,7 +91,20 @@ export async function getIssues(
       );
     }
 
-    return issuesOnly as GitHubIssue[];
+    return issuesOnly.map((issue) => ({
+      id: issue.id,
+      number: issue.number,
+      title: issue.title,
+      body: issue.body || "",
+      state: issue.state as "open" | "closed",
+      created_at: issue.created_at,
+      updated_at: issue.updated_at,
+      user: {
+        login: issue.user?.login || "unknown",
+        avatar_url: issue.user?.avatar_url || "",
+      },
+      comments: issue.comments,
+    })) satisfies GitHubIssue[];
   } catch (error) {
     handleApiError("fetch issues", error);
   }
@@ -102,13 +115,13 @@ export async function getIssues(
  * @param issueNumber - Issue number to fetch
  * @param owner - Repository owner username
  * @param repo - Repository name
- * @returns Promise that resolves to the GitHub issue or null if not found
+ * @returns Promise that resolves to the GitHub issue if found, or throws an error if not found or on API failure
  */
 export async function getIssue(
   issueNumber: number,
   owner: string,
   repo: string,
-): Promise<GitHubIssue | null> {
+): Promise<GitHubIssue> {
   try {
     const response = await octokit.rest.issues.get({
       owner,
@@ -116,7 +129,22 @@ export async function getIssue(
       issue_number: issueNumber,
     });
 
-    return response.data as GitHubIssue;
+    // Normalize the response data to ensure body is never undefined
+    const issueData = response.data;
+    return {
+      id: issueData.id,
+      number: issueData.number,
+      title: issueData.title,
+      body: issueData.body || "",
+      state: issueData.state as "open" | "closed",
+      created_at: issueData.created_at,
+      updated_at: issueData.updated_at,
+      user: {
+        login: issueData.user?.login || "unknown",
+        avatar_url: issueData.user?.avatar_url || "",
+      },
+      comments: issueData.comments,
+    } satisfies GitHubIssue;
   } catch (error) {
     handleApiError(`fetch issue ${issueNumber}`, error);
   }
@@ -141,7 +169,17 @@ export async function getIssueComments(
       issue_number: issueNumber,
     });
 
-    return response.data as GitHubComment[];
+    // Normalize the response data to ensure body is never undefined
+    return response.data.map((comment) => ({
+      id: comment.id,
+      body: comment.body || "",
+      created_at: comment.created_at,
+      updated_at: comment.updated_at,
+      user: {
+        login: comment.user?.login || "unknown",
+        avatar_url: comment.user?.avatar_url || "",
+      },
+    })) satisfies GitHubComment[];
   } catch (error) {
     handleApiError(`fetch comments for issue ${issueNumber}`, error);
   }
@@ -200,7 +238,22 @@ export async function updateIssueBody(
       issue_number: issueNumber,
       body: updatedMarkdown,
     });
-    return response.data as GitHubIssue;
+
+    const issueData = response.data;
+    return {
+      id: issueData.id,
+      number: issueData.number,
+      title: issueData.title,
+      body: issueData.body || "",
+      state: issueData.state as "open" | "closed",
+      created_at: issueData.created_at,
+      updated_at: issueData.updated_at,
+      user: {
+        login: issueData.user?.login || "unknown",
+        avatar_url: issueData.user?.avatar_url || "",
+      },
+      comments: issueData.comments,
+    } satisfies GitHubIssue;
   } catch (error) {
     handleApiError(`update issue ${issueNumber} body`, error);
   }
