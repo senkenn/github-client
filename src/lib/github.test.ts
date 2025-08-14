@@ -146,22 +146,6 @@ describe("github.ts", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("should use default owner and repo when not provided", async () => {
-      const mockResponse = { data: [] };
-
-      mockListForRepo.mockResolvedValueOnce(mockResponse);
-
-      await getIssues();
-
-      expect(mockListForRepo).toHaveBeenCalledWith({
-        owner: "microsoft",
-        repo: "vscode",
-        state: "open",
-        creator: undefined,
-        per_page: 100,
-      });
-    });
-
     it("should throw error when API fails", async () => {
       const error = new Error("API Error");
       mockListForRepo.mockRejectedValueOnce(error);
@@ -360,30 +344,6 @@ describe("github.ts", () => {
       });
     });
 
-    it("should use default owner and repo when not provided", async () => {
-      const mockIssue: GitHubIssue = {
-        id: 1,
-        number: 123,
-        title: "Test Issue",
-        body: "Test body",
-        state: "open",
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
-        user: { login: "testuser", avatar_url: "avatar.jpg" },
-        comments: 5,
-      };
-
-      mockGetIssue.mockResolvedValueOnce({ data: mockIssue });
-
-      await getIssue(123);
-
-      expect(mockGetIssue).toHaveBeenCalledWith({
-        owner: "microsoft",
-        repo: "vscode",
-        issue_number: 123,
-      });
-    });
-
     it("should throw error when API fails", async () => {
       const error = new Error("API Error");
       mockGetIssue.mockRejectedValueOnce(error);
@@ -421,18 +381,6 @@ describe("github.ts", () => {
       expect(mockListComments).toHaveBeenCalledWith({
         owner: "test-owner",
         repo: "test-repo",
-        issue_number: 123,
-      });
-    });
-
-    it("should use default owner and repo when not provided", async () => {
-      mockListComments.mockResolvedValueOnce({ data: [] });
-
-      await getIssueComments(123);
-
-      expect(mockListComments).toHaveBeenCalledWith({
-        owner: "microsoft",
-        repo: "vscode",
         issue_number: 123,
       });
     });

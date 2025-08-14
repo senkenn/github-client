@@ -49,6 +49,13 @@ DRY: インデックスや子ルートでは検索バリデーションを重複
 - 代替として Playwright E2E を追加
   - `/issues?owner=...&repo=...` で一覧を表示（`data-testid="issue-item"` を 2 件想定）
 
+## ターミナル出力の確認方法
+
+- GitHub Copilotとのチャット中にビルドやテストコマンドの実行時は必ずログファイル方式を使用
+- `npm run build 2>&1 | tee build.log` でログを保存して確認
+- 他のコマンドも同様に `command 2>&1 | tee command.log` の形式を使用
+- これによりターミナル出力が正しく取得できない問題を回避できる
+
 ## E2Eテストのベストプラクティス
 
 - 実在するリポジトリ（microsoft/vscode等）をテストで使用しない
@@ -125,3 +132,27 @@ DRY: インデックスや子ルートでは検索バリデーションを重複
 
 - 目的が重複するテストは「最も読みやすい1つ」に統合。
 - 速度監視: 将来テスト増加時は smoke セットと full セットを npm script で分離（例: `test:e2e:smoke`）。
+
+## コード重複の削減方針
+
+- 共通UIコンポーネントの抽出: LoadingSpinner, UserAvatar, IssueBadge
+- エラーハンドリングパターンの統一: github.ts でヘルパー関数を使用
+- 一貫性のあるJSDocドキュメント: すべてのpublic関数に追加
+- console.log の削除: mdHtmlUtils.ts からデバッグログを除去
+
+## Turndown変換の特性
+
+- イタリック文字: `*text*` → `_text_` に変換される（Turndownの仕様）
+- 空のコードブロック: ` ``` ` → 空文字列に変換される
+- テスト時は実際の変換結果に合わせた期待値を設定する
+
+## コードレビュー完了項目 (2025-01-XX)
+
+- ✅ 重複する Loading スピナーの統一化
+- ✅ 重複する User アバター表示の統一化
+- ✅ 重複する Issue ステートバッジの統一化
+- ✅ github.ts のエラーハンドリング統一化
+- ✅ JSDoc ドキュメントの追加
+- ✅ console.log デバッグコードの削除
+- ✅ README.md の充実（開発手順、アーキテクチャ説明）
+- ✅ mdHtmlUtils.test.ts のエッジケース追加

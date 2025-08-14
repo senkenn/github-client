@@ -3,6 +3,11 @@ ignorePaths:
 words:
   - esbuild
   - lefthook
+  - lowlight
+  - octocat
   - senken
+  - testowner
+  - testrepo
+  - testuser
   - tiptap
   - vite

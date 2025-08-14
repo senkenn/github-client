@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { IssueDetail } from "../components/IssueDetail";
 
 type IssueDetailSearch = {
-  owner?: string;
-  repo?: string;
+  owner: string;
+  repo: string;
   state?: "open" | "closed" | "all";
   search?: string;
   author?: string;
@@ -13,8 +13,8 @@ export const Route = createFileRoute("/issues/$issueNumber")({
   component: IssueDetailPage,
   validateSearch: (search: Record<string, unknown>): IssueDetailSearch => {
     return {
-      owner: typeof search.owner === "string" ? search.owner : undefined,
-      repo: typeof search.repo === "string" ? search.repo : undefined,
+      owner: typeof search.owner === "string" ? search.owner : "",
+      repo: typeof search.repo === "string" ? search.repo : "",
       state:
         search.state === "open" ||
         search.state === "closed" ||
