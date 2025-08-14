@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // Test that the TiptapEditor module imports correctly
 describe("TiptapEditor Image Upload", () => {
