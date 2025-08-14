@@ -138,4 +138,82 @@ test.describe("Issue editing (E2E)", () => {
     await commentEditor.getByRole("button", { name: "Save" }).click();
     await expect(content).toContainText("Updated comment body");
   });
+
+  test("can insert and edit tables", async ({ page }) => {
+    // GET issue (no patch expected here)
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockIssue),
+        });
+      },
+    );
+
+    // GET comments
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123\/comments(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([mockComment]),
+        });
+      },
+    );
+
+    await page.goto("/issues/123?owner=microsoft&repo=vscode");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /#123\s+Editable Issue/ }),
+    ).toBeVisible();
+
+    const issueEditor = page.getByTestId("tiptap-editor").first();
+    await issueEditor.getByRole("button", { name: "編集を開始" }).click();
+
+    // Click the Table button to insert a table
+    await issueEditor.getByRole("button", { name: "Table" }).click();
+
+    // Verify table was inserted
+    const content = issueEditor.locator(".ProseMirror");
+    await expect(content.locator("table")).toBeVisible();
+
+    // Verify table has 3 rows and 3 columns (default)
+    await expect(content.locator("table tr")).toHaveCount(3);
+    await expect(content.locator("table tr").first().locator("th")).toHaveCount(
+      3,
+    );
+
+    // Check that table manipulation buttons appear
+    await expect(
+      issueEditor.getByRole("button", { name: "+Row" }),
+    ).toBeVisible();
+    await expect(
+      issueEditor.getByRole("button", { name: "+Col" }),
+    ).toBeVisible();
+    await expect(
+      issueEditor.getByRole("button", { name: "×Table" }),
+    ).toBeVisible();
+
+    // Test adding a row
+    await issueEditor.getByRole("button", { name: "+Row" }).click();
+    await expect(content.locator("table tr")).toHaveCount(4);
+
+    // Test adding a column
+    await issueEditor.getByRole("button", { name: "+Col" }).click();
+    await expect(content.locator("table tr").first().locator("th")).toHaveCount(
+      4,
+    );
+
+    // Test editing table content
+    const firstCell = content.locator("table th").first();
+    await firstCell.click();
+    await page.keyboard.type("Header 1");
+    await expect(firstCell).toContainText("Header 1");
+
+    // Test deleting table
+    await issueEditor.getByRole("button", { name: "×Table" }).click();
+    await expect(content.locator("table")).not.toBeVisible();
+  });
 });

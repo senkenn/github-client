@@ -118,6 +118,49 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
             >
               •
             </button>
+            <button
+              type="button"
+              onClick={() =>
+                editor
+                  .chain()
+                  .focus()
+                  .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                  .run()
+              }
+              className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+              title="Insert Table"
+            >
+              Table
+            </button>
+            {editor.isActive("table") && (
+              <>
+                <div className="h-6 w-px bg-gray-400 mx-2"></div>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                  className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  title="Add Row"
+                >
+                  +Row
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                  className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  title="Add Column"
+                >
+                  +Col
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  className="px-2 py-1 rounded text-xs bg-red-200 text-red-700 hover:bg-red-300"
+                  title="Delete Table"
+                >
+                  ×Table
+                </button>
+              </>
+            )}
           </div>
           <div className="flex space-x-2">
             <button
