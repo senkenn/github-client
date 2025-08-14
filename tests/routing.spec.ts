@@ -50,16 +50,16 @@ test.describe("Routing behavior (E2E)", () => {
       },
     );
 
-    await page.goto("/issues?owner=microsoft&repo=vscode&state=open");
+    await page.goto("/issues?owner=testowner&repo=testrepo&state=open");
 
     // Verify URL parameters are handled correctly
-    await expect(page).toHaveURL(/owner=microsoft/);
-    await expect(page).toHaveURL(/repo=vscode/);
+    await expect(page).toHaveURL(/owner=testowner/);
+    await expect(page).toHaveURL(/repo=testrepo/);
     await expect(page).toHaveURL(/state=open/);
 
     // Verify route renders correctly
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      /Issues\s*-\s*microsoft\/vscode/,
+      /Issues\s*-\s*testowner\/testrepo/,
     );
   });
 
@@ -90,11 +90,11 @@ test.describe("Routing behavior (E2E)", () => {
       },
     );
 
-    await page.goto("/issues/123?owner=microsoft&repo=vscode");
+    await page.goto("/issues/123?owner=testowner&repo=testrepo");
 
     // Verify URL parameters are handled correctly
-    await expect(page).toHaveURL(/owner=microsoft/);
-    await expect(page).toHaveURL(/repo=vscode/);
+    await expect(page).toHaveURL(/owner=testowner/);
+    await expect(page).toHaveURL(/repo=testrepo/);
     await expect(page).toHaveURL(/issues\/123/);
 
     // Verify route renders correctly
@@ -118,7 +118,7 @@ test.describe("Routing behavior (E2E)", () => {
     );
 
     // Navigate without state parameter
-    await page.goto("/issues?owner=microsoft&repo=vscode");
+    await page.goto("/issues?owner=testowner&repo=testrepo");
 
     // Default state should be 'open' based on route validation
     // Check that the filter dropdown shows 'open' as default
@@ -138,11 +138,11 @@ test.describe("Routing behavior (E2E)", () => {
     });
 
     // Test with valid state parameter
-    await page.goto("/issues?owner=test&repo=test&state=closed");
+    await page.goto("/issues?owner=testowner&repo=testrepo&state=closed");
     await expect(page).toHaveURL(/state=closed/);
 
     // Test with invalid state parameter (should default to 'open')
-    await page.goto("/issues?owner=test&repo=test&state=invalid");
+    await page.goto("/issues?owner=testowner&repo=testrepo&state=invalid");
     // Should either default to 'open' or handle invalid state gracefully
     await expect(page.getByRole("heading")).toBeVisible();
   });
