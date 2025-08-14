@@ -15,8 +15,8 @@ import { UserAvatar } from "./UserAvatar";
 
 interface IssueDetailProps {
   issueNumber: number;
-  owner?: string;
-  repo?: string;
+  owner: string;
+  repo: string;
 }
 
 export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
@@ -58,7 +58,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
     // ここで実際のAPI更新を行う
     console.log("Updating comment:", commentId, newContent);
     try {
-      await updateComment(owner || "", repo || "", commentId, newContent);
+      await updateComment(owner, repo, commentId, newContent);
     } catch (e) {
       console.error("Failed to update comment", e);
       // Revert on failure by refetching comments
@@ -84,7 +84,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
         : null,
     );
     try {
-      await updateIssueBody(owner || "", repo || "", issue.number, newContent);
+      await updateIssueBody(owner, repo, issue.number, newContent);
     } catch (e) {
       console.error("Failed to update issue body", e);
       // Revert on failure by refetching

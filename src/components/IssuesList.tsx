@@ -30,6 +30,8 @@ export function IssuesList({
   // Fetch issues only if propIssues is not provided
   useEffect(() => {
     if (propIssues) return;
+    if (!owner || !repo) return; // Don't fetch if owner or repo is missing
+
     const fetchIssues = async () => {
       try {
         const data = await getIssues(owner, repo, filters);

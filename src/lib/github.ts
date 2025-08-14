@@ -1,10 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import type { GitHubComment, GitHubIssue } from "../types/github";
 
-// デモ用の設定（実際のプロジェクトではenvから取得）
-const OWNER = "microsoft";
-const REPO = "vscode";
-
 const octokit = new Octokit({
   auth: import.meta.env.VITE_GITHUB_TOKEN,
 });
@@ -69,14 +65,14 @@ export interface IssueFilters {
  * @returns Promise that resolves to array of GitHub issues (excludes pull requests)
  */
 export async function getIssues(
-  owner?: string,
-  repo?: string,
+  owner: string,
+  repo: string,
   filters?: IssueFilters,
 ): Promise<GitHubIssue[]> {
   try {
     const response = await octokit.rest.issues.listForRepo({
-      owner: owner || OWNER,
-      repo: repo || REPO,
+      owner,
+      repo,
       state: filters?.state || "open", // Default to open issues
       creator: filters?.author,
       per_page: 100, // Increase to support client-side search filtering
@@ -104,19 +100,19 @@ export async function getIssues(
 /**
  * Fetch a specific issue by number
  * @param issueNumber - Issue number to fetch
- * @param owner - Repository owner username (defaults to 'microsoft')
- * @param repo - Repository name (defaults to 'vscode')
+ * @param owner - Repository owner username
+ * @param repo - Repository name
  * @returns Promise that resolves to the GitHub issue or null if not found
  */
 export async function getIssue(
   issueNumber: number,
-  owner?: string,
-  repo?: string,
+  owner: string,
+  repo: string,
 ): Promise<GitHubIssue | null> {
   try {
     const response = await octokit.rest.issues.get({
-      owner: owner || OWNER,
-      repo: repo || REPO,
+      owner,
+      repo,
       issue_number: issueNumber,
     });
 
@@ -129,19 +125,19 @@ export async function getIssue(
 /**
  * Fetch comments for a specific issue
  * @param issueNumber - Issue number to fetch comments for
- * @param owner - Repository owner username (defaults to 'microsoft')
- * @param repo - Repository name (defaults to 'vscode')
+ * @param owner - Repository owner username
+ * @param repo - Repository name
  * @returns Promise that resolves to array of GitHub comments
  */
 export async function getIssueComments(
   issueNumber: number,
-  owner?: string,
-  repo?: string,
+  owner: string,
+  repo: string,
 ): Promise<GitHubComment[]> {
   try {
     const response = await octokit.rest.issues.listComments({
-      owner: owner || OWNER,
-      repo: repo || REPO,
+      owner,
+      repo,
       issue_number: issueNumber,
     });
 

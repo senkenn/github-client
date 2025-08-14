@@ -35,7 +35,7 @@ export function IssuesListUI({
               <Link
                 to="/issues/$issueNumber"
                 params={{ issueNumber: String(issue.number) }}
-                search={{ owner, repo }}
+                search={{ owner: owner || "", repo: repo || "" }}
                 className="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-2 block"
               >
                 #{issue.number} {issue.title}
