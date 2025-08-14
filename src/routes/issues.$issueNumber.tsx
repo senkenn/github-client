@@ -1,35 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { IssueDetail } from "../components/IssueDetail";
-
-type IssueDetailSearch = {
-  owner: string;
-  repo: string;
-  state?: "open" | "closed" | "all";
-  search?: string;
-  author?: string;
-};
+import { Route as IssuesRoute } from "./issues";
 
 export const Route = createFileRoute("/issues/$issueNumber")({
   component: IssueDetailPage,
-  validateSearch: (search: Record<string, unknown>): IssueDetailSearch => {
-    return {
-      owner: typeof search.owner === "string" ? search.owner : "",
-      repo: typeof search.repo === "string" ? search.repo : "",
-      state:
-        search.state === "open" ||
-        search.state === "closed" ||
-        search.state === "all"
-          ? search.state
-          : undefined,
-      search: typeof search.search === "string" ? search.search : undefined,
-      author: typeof search.author === "string" ? search.author : undefined,
-    };
-  },
 });
 
 function IssueDetailPage() {
   const { issueNumber } = Route.useParams();
-  const { owner, repo } = Route.useSearch();
+  // Use parent's validated search to avoid duplicate validation
+  const { owner, repo } = IssuesRoute.useSearch();
+
+  if (!owner || !repo) {
+    return (
+      <div className="p-4">
+        <p className="text-red-600">
+          Error: Owner and repository are required. Please make sure the URL
+          includes valid owner and repo parameters.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div>

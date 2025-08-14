@@ -4,36 +4,26 @@ GitHub Client is a React + TypeScript web application that provides a WYSIWYG ed
 
 **ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
 
-## Critical Build & Test Requirements
-
-**NEVER CANCEL builds or tests.** Set appropriate timeouts and wait for completion.
-
-### Timeouts for Commands:
-
-- **Build commands**: Set 60+ minutes timeout. Build typically takes 4-5 minutes but can be longer.
-- **Test commands**: Set 30+ minutes timeout. Unit tests are fast (~1 min) but E2E can take 15+ minutes.
-- **Installation**: Set 60+ minutes timeout. npm install takes ~60 seconds but can be much longer.
-
 ## Working Effectively
 
 ### Bootstrap, Build, and Test:
 
 ```bash
 # CRITICAL: Use npm, NOT pnpm (specified in project guidelines)
-npm install  # Takes ~60 seconds. NEVER CANCEL. Set timeout to 60+ minutes.
+npm install
 
 # Build the application
-npm run build  # Takes ~4 minutes. NEVER CANCEL. Set timeout to 60+ minutes.
+npm run build
 
 # Run linting (uses Biome, not ESLint)
-npm run lint  # Fast, but set timeout to 30+ minutes for safety
+npm run lint
 
 # Run unit tests (Vitest)
-npm run test  # Takes ~1 minute. NEVER CANCEL. Set timeout to 30+ minutes.
+npm run test
 
 # Run E2E tests (Playwright) - requires browser installation first
-npx playwright install  # May take 10+ minutes. NEVER CANCEL. Set timeout to 60+ minutes.
-npm run test:e2e  # Takes 5-15 minutes. NEVER CANCEL. Set timeout to 30+ minutes.
+npx playwright install
+npm run test:e2e
 ```
 
 ### Development Server:
@@ -58,9 +48,22 @@ docker compose up -d  # Runs on http://localhost:7777
 
 ### ALWAYS run after making changes:
 
-1. **Code Quality**: `npm run lint` - Must pass before committing
-2. **Unit Tests**: `npm run test` - Must pass (53 tests expected)
-3. **E2E Tests**: `npm run test:e2e` - Must pass (localStorage, routing, editing tests)
+1. **Code Quality**: `npm run lint:log` - Must pass before committing (outputs to lint.log)
+2. **Unit Tests**: `npm run test:log` - Must pass (outputs to test.log)
+3. **E2E Tests**: `npm run test:e2e:log` - Must pass (outputs to e2e.log)
+
+### CRITICAL: Always use file output commands in chat sessions:
+
+```bash
+# Use these commands EVERY TIME in chat
+npm run lint:log     # Instead of npm run lint
+npm run test:log     # Instead of npm run test
+npm run test:e2e:log # Instead of npm run test:e2e
+npm run build:log    # Instead of npm run build
+
+# For commands without :log variant
+<command> 2>&1 | tee <logfile>
+```
 
 ### Manual Validation Scenarios:
 
@@ -207,6 +210,54 @@ VITE_GITHUB_TOKEN=your_github_token_here
 5. **Spell check failures**:
    - Add unknown technical terms to `cspell.yaml` under `words:` section
    - Common words to add: component names, API terms, test data names
+
+6. **Command execution results not visible in chat**:
+   - When command output is not displayed or accessible in chat interface
+   - **ALWAYS use log file commands in chat sessions**:
+
+   ```bash
+   npm run build:log    # View build output logs (saves to build.log)
+   npm run test:log     # View test execution logs (saves to test.log)
+   npm run lint:log     # View lint results (saves to lint.log)
+   npm run e2e:log      # View E2E test execution logs (saves to e2e.log)
+
+   # For other commands
+   <command> 2>&1 | tee <filename>.log
+   ```
+
+   - These commands save output to log files AND display in terminal
+   - **REQUIRED for all Copilot chat sessions** to ensure output visibility
+   - Log files can be reviewed with `cat <filename>.log`
+
+## Type Safety Guidelines
+
+### ❌ Avoid dangerous patterns:
+
+- `as` type assertions (runtime type safety bypass)
+- Complex type guards (maintenance overhead)
+
+### ✅ Use safe patterns:
+
+- `satisfies` operator for compile-time type checking
+- Explicit property mapping from API responses
+- Null/undefined safe handling with fallbacks
+
+```typescript
+// ❌ Dangerous - no runtime safety
+return response.data as GitHubIssue[];
+
+// ✅ Safe - compile-time + runtime safety
+return response.data.map((item) => ({
+  id: item.id,
+  title: item.title,
+  body: item.body || "",
+  user: {
+    login: item.user?.login || "unknown",
+    avatar_url: item.user?.avatar_url || "",
+  },
+  // ... explicit mapping
+})) satisfies GitHubIssue[];
+```
 
 ## Project-Specific Guidelines
 
