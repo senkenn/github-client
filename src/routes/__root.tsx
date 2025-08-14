@@ -9,15 +9,6 @@ export const Route = createRootRoute({
           <Link to="/" className="text-xl font-bold text-gray-900">
             GitHub Client
           </Link>
-          <div className="space-x-4">
-            <Link
-              to="/issues"
-              className="text-blue-600 hover:text-blue-800"
-              activeProps={{ className: "font-semibold" }}
-            >
-              Issues
-            </Link>
-          </div>
         </div>
       </nav>
       <main className="max-w-7xl mx-auto px-4 py-6">

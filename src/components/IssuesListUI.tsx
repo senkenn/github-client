@@ -22,6 +22,20 @@ export function IssuesListUI({
     return <LoadingSpinner />;
   }
 
+  // If owner and repo are not provided, show a message to add them
+  if (!owner || !repo) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 mb-4">
+          Please specify the repository owner and name in the URL parameters.
+        </p>
+        <p className="text-sm text-gray-400">
+          Example: /issues?owner=facebook&repo=react&state=open
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {issues.map((issue) => (

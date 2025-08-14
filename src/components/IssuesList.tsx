@@ -30,7 +30,12 @@ export function IssuesList({
   // Fetch issues only if propIssues is not provided
   useEffect(() => {
     if (propIssues) return;
-    if (!owner || !repo) return; // Don't fetch if owner or repo is missing
+
+    if (!owner || !repo) {
+      // Don't fetch if owner or repo is missing, but set loading to false
+      setLoading(false);
+      return;
+    }
 
     const fetchIssues = async () => {
       try {

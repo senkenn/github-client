@@ -17,7 +17,10 @@ export function LoadingSpinner({
   };
 
   return (
-    <div className={`flex justify-center items-center py-12 ${className}`}>
+    <div
+      className={`flex justify-center items-center py-12 ${className}`}
+      data-testid="loading-spinner"
+    >
       <div
         className={`animate-spin rounded-full border-b-2 border-blue-600 ${sizeClasses[size]}`}
       />

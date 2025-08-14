@@ -23,7 +23,7 @@ pre-commit:
         # check file name
         git diff --name-only --cached | npx cspell --no-progress --show-context stdin --cache
     test:
-      glob: "src/**/*.{js,ts,jsx,tsx}"
+      glob: "src/**/*.{test,spec}.{js,ts,jsx,tsx}"
       run: |
         NO_COLOR=1 npm test -- {staged_files}
 
