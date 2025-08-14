@@ -5,14 +5,15 @@ import type { GitHubIssue } from "../types/github";
 export interface IssuesListUIProps {
   issues: GitHubIssue[];
   loading?: boolean;
-  /** Build issue link for anchors. If not provided, falls back to owner/repo pattern. */
-  getIssueHref?: (issue: GitHubIssue) => string | undefined;
+  owner?: string;
+  repo?: string;
 }
 
 export function IssuesListUI({
   issues,
   loading,
-  getIssueHref,
+  owner,
+  repo,
 }: IssuesListUIProps) {
   if (loading) {
     return (
@@ -33,7 +34,9 @@ export function IssuesListUI({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <Link
-                to={getIssueHref?.(issue) ?? "#"}
+                to="/issues/$issueNumber"
+                params={{ issueNumber: String(issue.number) }}
+                search={{ owner, repo }}
                 className="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-2 block"
               >
                 #{issue.number} {issue.title}

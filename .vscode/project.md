@@ -48,6 +48,22 @@ DRY: インデックスや子ルートでは検索バリデーションを重複
 - ファイル内容の文字列一致でルーティング修正を検証するユニットテストは廃止（脆弱・リファクタで壊れやすい）
 - 代替として Playwright E2E を追加
   - `/issues?owner=...&repo=...` で一覧を表示（`data-testid="issue-item"` を 2 件想定）
+
+## E2Eテストのベストプラクティス
+
+- 実在するリポジトリ（microsoft/vscode等）をテストで使用しない
+- ダミーのowner/repo（testowner/testrepo等）を使用してAPIへの迷惑を防ぐ
+- モックデータでテストを実行し、実際のAPIコールを避ける
+
+## GitHub Copilot指針の実践方法
+
+- コード修正後は必ず以下を実行：
+  1. `npm run lint` でコード品質確認
+  2. `npm run test` でユニットテスト確認
+  3. `npm run test:e2e` でE2Eテスト確認
+- 学んだ知見は即座に `.vscode/project.md` に記載
+- レスポンスは短く簡潔に（長文説明は避ける）
+- 指針違反時はユーザーから指摘を受けるため、毎回意識的に実践する
   - `/issues/:number?owner=...&repo=...` で詳細を表示（h1 に `#<number> <title>` が出る）
 - ネットワークは `api.github.com` の該当エンドポイントを `page.route` でモックし、安定化する
 
