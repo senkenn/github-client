@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:log": "npm run build 2>&1 | tee build.log",
     "lint": "biome check",
     "lint:fix": "biome check --write",
+    "lint:log": "npm run lint 2>&1 | tee lint.log",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:log": "npm run test 2>&1 | tee test.log",
     "test:e2e": "playwright test --config=playwright.config.ts --reporter=list",
+    "test:e2e:log": "npm run test:e2e 2>&1 | tee e2e.log",
     "generate": "tsr generate"
   },
   "dependencies": {

@@ -3,6 +3,9 @@ import TurndownService from "turndown";
 // @ts-ignore // TODO: 型定義を追加する
 // import { tables } from "turndown-plugin-gfm";
 
+/**
+ * Converts markdown text to HTML
+ */
 export function markdownToHtml(markdown: string): string {
   const md = new MarkdownIt();
   const html = md
@@ -12,9 +15,10 @@ export function markdownToHtml(markdown: string): string {
   return html;
 }
 
+/**
+ * Converts HTML text to markdown
+ */
 export function htmlToMarkdown(html: string): string {
-  console.log(html);
-
   // TODO: html -> markdown の変換に使っている Turndown のオプションを調整できるようにする
   const turndownService = new TurndownService({
     headingStyle: "atx",
@@ -114,6 +118,5 @@ export function htmlToMarkdown(html: string): string {
   }
   markdown = lines.join("\n");
 
-  console.log("markdown", markdown); // TODO: ロガーを使う
   return markdown;
 }
