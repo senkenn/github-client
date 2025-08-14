@@ -258,3 +258,26 @@ export async function updateIssueBody(
     handleApiError(`update issue ${issueNumber} body`, error);
   }
 }
+
+/**
+ * Upload an image file and return a data URL for immediate use
+ * @param file - File to upload
+ * @returns Promise that resolves to a data URL for the image
+ */
+export async function uploadImage(file: File): Promise<string> {
+  try {
+    // Convert file to data URL for immediate display
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    return dataUrl;
+  } catch (error) {
+    handleApiError(`upload image ${file.name}`, error);
+  }
+}

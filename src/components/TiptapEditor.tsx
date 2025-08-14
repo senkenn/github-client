@@ -1,4 +1,5 @@
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import Image from "@tiptap/extension-image";
 import {
   Table,
   TableCell,
@@ -8,7 +9,8 @@ import {
 import { EditorContent, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { uploadImage } from "../lib/github";
 import { htmlToMarkdown, markdownToHtml } from "../lib/mdHtmlUtils";
 import { CodeBlockComponent } from "./CodeBlockComponent";
 
@@ -16,6 +18,7 @@ const lowlight = createLowlight(all);
 
 const extensions = [
   StarterKit,
+  Image,
   Table,
   TableCell,
   TableHeader,
@@ -35,6 +38,7 @@ interface TiptapEditorProps {
 
 export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions,
@@ -46,6 +50,28 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
       },
     },
   });
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file && editor) {
+      try {
+        const imageUrl = await uploadImage(file);
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: imageUrl, alt: file.name })
+          .run();
+      } catch (error) {
+        console.error("Failed to upload image:", error);
+      }
+    }
+    // Reset the input value so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSave = () => {
     if (editor) {
@@ -118,6 +144,13 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
             >
               •
             </button>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              📷
+            </button>
           </div>
           <div className="flex space-x-2">
             <button
@@ -156,6 +189,15 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
           </button>
         )}
       </div>
+
+      {/* Hidden file input for image upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        style={{ display: "none" }}
+      />
     </div>
   );
 }
