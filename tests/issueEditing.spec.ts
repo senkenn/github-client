@@ -171,7 +171,7 @@ test.describe("Issue editing (E2E)", () => {
 
     const issueEditor = page.getByTestId("tiptap-editor").first();
     const saveButton = issueEditor.getByRole("button", { name: "Save" });
-    
+
     // Save button should be disabled initially when no changes
     await expect(saveButton).toBeDisabled();
   });
@@ -209,14 +209,14 @@ test.describe("Issue editing (E2E)", () => {
     const issueEditor = page.getByTestId("tiptap-editor").first();
     const saveButton = issueEditor.getByRole("button", { name: "Save" });
     const content = issueEditor.locator(".ProseMirror");
-    
+
     // Save button should be disabled initially
     await expect(saveButton).toBeDisabled();
-    
+
     // Make a change to the content
     await content.click();
     await page.keyboard.type(" - modified");
-    
+
     // Save button should now be enabled
     await expect(saveButton).toBeEnabled();
   });
