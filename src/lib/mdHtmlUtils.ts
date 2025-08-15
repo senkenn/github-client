@@ -1,6 +1,6 @@
 import MarkdownIt from "markdown-it";
 import TurndownService from "turndown";
-// @ts-ignore // TODO: 型定義を追加する
+// @ts-expect-error // TODO: 型定義を追加する
 // import { tables } from "turndown-plugin-gfm";
 
 /**

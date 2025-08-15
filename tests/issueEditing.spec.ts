@@ -330,9 +330,10 @@ test.describe("Issue editing (E2E)", () => {
     await issueEditor.getByRole("button", { name: "Save" }).click();
 
     // Wait for the save request to complete
-    await page.waitForResponse((response) =>
-      response.url().includes("/api/issues/") &&
-      response.request().method() === "PATCH"
+    await page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/issues/") &&
+        response.request().method() === "PATCH",
     );
 
     // Verify the saved content contains proper markdown table

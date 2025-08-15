@@ -25,7 +25,7 @@ function IssueDetailPage() {
   return (
     <div>
       <IssueDetail
-        issueNumber={parseInt(issueNumber)}
+        issueNumber={parseInt(issueNumber, 10)}
         owner={owner}
         repo={repo}
       />
