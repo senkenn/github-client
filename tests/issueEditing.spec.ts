@@ -193,7 +193,9 @@ test.describe("Issue editing (E2E)", () => {
     await firstHeaderCell.click();
 
     // Wait for table controls to appear
-    await page.waitForTimeout(200);
+    await expect(
+      issueEditor.getByRole("button", { name: "+Row" }),
+    ).toBeVisible();
 
     // Check that table manipulation buttons appear after focusing the table
     await expect(
