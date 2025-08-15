@@ -16,10 +16,12 @@ const lowlight = createLowlight(all);
 
 const extensions = [
   StarterKit,
-  Table,
-  TableCell,
-  TableHeader,
+  Table.configure({
+    resizable: true,
+  }),
   TableRow,
+  TableHeader,
+  TableCell,
   CodeBlockLowlight.extend({
     addNodeView() {
       return ReactNodeViewRenderer(CodeBlockComponent);
@@ -35,6 +37,7 @@ interface TiptapEditorProps {
 
 export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isTableActive, setIsTableActive] = useState(false);
 
   const editor = useEditor({
     extensions,
@@ -44,6 +47,16 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
         class:
           "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] p-4 border border-gray-300 rounded-lg",
       },
+    },
+    onUpdate: ({ editor }) => {
+      // Check if cursor is in a table
+      const tableActive = editor.isActive("table");
+      setIsTableActive(tableActive);
+    },
+    onSelectionUpdate: ({ editor }) => {
+      // Check if cursor is in a table
+      const tableActive = editor.isActive("table");
+      setIsTableActive(tableActive);
     },
   });
 
@@ -118,6 +131,49 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
             >
               •
             </button>
+            <button
+              type="button"
+              onClick={() =>
+                editor
+                  .chain()
+                  .focus()
+                  .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                  .run()
+              }
+              className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+              title="Insert Table"
+            >
+              Table
+            </button>
+            {isTableActive && (
+              <>
+                <div className="h-6 w-px bg-gray-400 mx-2"></div>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                  className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  title="Add Row"
+                >
+                  +Row
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                  className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  title="Add Column"
+                >
+                  +Col
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  className="px-2 py-1 rounded text-xs bg-red-200 text-red-700 hover:bg-red-300"
+                  title="Delete Table"
+                >
+                  ×Table
+                </button>
+              </>
+            )}
           </div>
           <div className="flex space-x-2">
             <button
