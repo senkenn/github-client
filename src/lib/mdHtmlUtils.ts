@@ -32,7 +32,6 @@ export function htmlToMarkdown(html: string): string {
     replacement: (_content, node) => {
       const table = node as HTMLTableElement;
       let markdown = "\n";
-      let headerCells: Element[] = [];
       let hasProcessedHeader = false;
 
       // ヘッダー行の処理（theadから探す）
