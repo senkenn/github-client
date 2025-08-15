@@ -175,6 +175,9 @@ test.describe("Issue editing (E2E)", () => {
     // Click the Table button to insert a table
     await issueEditor.getByRole("button", { name: "Table" }).click();
 
+    // Wait for table to be inserted
+    await page.waitForTimeout(500);
+
     // Verify table was inserted
     const content = issueEditor.locator(".ProseMirror");
     await expect(content.locator("table")).toBeVisible();
@@ -185,7 +188,14 @@ test.describe("Issue editing (E2E)", () => {
       3,
     );
 
-    // Check that table manipulation buttons appear
+    // Click on a table cell to focus the table and activate table controls
+    const firstHeaderCell = content.locator("table th").first();
+    await firstHeaderCell.click();
+
+    // Wait for table controls to appear
+    await page.waitForTimeout(200);
+
+    // Check that table manipulation buttons appear after focusing the table
     await expect(
       issueEditor.getByRole("button", { name: "+Row" }),
     ).toBeVisible();
@@ -207,13 +217,128 @@ test.describe("Issue editing (E2E)", () => {
     );
 
     // Test editing table content
-    const firstCell = content.locator("table th").first();
-    await firstCell.click();
+    const editCell = content.locator("table th").first();
+    await editCell.click();
     await page.keyboard.type("Header 1");
-    await expect(firstCell).toContainText("Header 1");
+    await expect(editCell).toContainText("Header 1");
 
     // Test deleting table
     await issueEditor.getByRole("button", { name: "×Table" }).click();
     await expect(content.locator("table")).not.toBeVisible();
+  });
+
+  test("can save table content correctly", async ({ page }) => {
+    let savedContent = "";
+
+    // Mock GET issue
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123(\?.*)?$/,
+      async (route) => {
+        if (route.request().method() === "PATCH") {
+          const json = JSON.parse(route.request().postData() || "{}");
+          savedContent = json.body;
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...mockIssue,
+              body: json.body,
+              updated_at: new Date().toISOString(),
+            }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockIssue),
+        });
+      },
+    );
+
+    // GET comments
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123\/comments(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([mockComment]),
+        });
+      },
+    );
+
+    await page.goto("/issues/123?owner=microsoft&repo=vscode");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /#123\s+Editable Issue/ }),
+    ).toBeVisible();
+
+    const issueEditor = page.getByTestId("tiptap-editor").first();
+    await issueEditor.getByRole("button", { name: "編集を開始" }).click();
+
+    // Clear existing content
+    const content = issueEditor.locator(".ProseMirror");
+    await content.click();
+    await page.keyboard.press("Control+a");
+    await page.keyboard.press("Delete");
+
+    // Insert table
+    await issueEditor.getByRole("button", { name: "Table" }).click();
+
+    // Fill in table content
+    const firstHeaderCell = content.locator("table th").first();
+    await firstHeaderCell.click();
+    await page.keyboard.type("Product");
+
+    const secondHeaderCell = content.locator("table th").nth(1);
+    await secondHeaderCell.click();
+    await page.keyboard.type("Price");
+
+    const thirdHeaderCell = content.locator("table th").nth(2);
+    await thirdHeaderCell.click();
+    await page.keyboard.type("Stock");
+
+    // Fill first data row
+    const firstDataCell = content.locator("table td").first();
+    await firstDataCell.click();
+    await page.keyboard.type("Laptop");
+
+    const secondDataCell = content.locator("table td").nth(1);
+    await secondDataCell.click();
+    await page.keyboard.type("$999");
+
+    const thirdDataCell = content.locator("table td").nth(2);
+    await thirdDataCell.click();
+    await page.keyboard.type("50");
+
+    // Fill second data row
+    const fourthDataCell = content.locator("table td").nth(3);
+    await fourthDataCell.click();
+    await page.keyboard.type("Mouse");
+
+    const fifthDataCell = content.locator("table td").nth(4);
+    await fifthDataCell.click();
+    await page.keyboard.type("$25");
+
+    const sixthDataCell = content.locator("table td").nth(5);
+    await sixthDataCell.click();
+    await page.keyboard.type("100");
+
+    // Save the content
+    await issueEditor.getByRole("button", { name: "Save" }).click();
+
+    // Wait for the save request to complete
+    await page.waitForTimeout(100);
+
+    // Verify the saved content contains proper markdown table
+    expect(savedContent).toContain("| Product | Price | Stock |");
+    expect(savedContent).toContain("| --- | --- | --- |");
+    expect(savedContent).toContain("| Laptop | $999 | 50 |");
+    expect(savedContent).toContain("| Mouse | $25 | 100 |");
+
+    // Verify the table structure is preserved
+    const lines = savedContent.split("\n");
+    const tableLines = lines.filter((line) => line.includes("|"));
+    expect(tableLines).toHaveLength(4); // header + separator + 2 data rows
   });
 });

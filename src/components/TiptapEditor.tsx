@@ -16,10 +16,12 @@ const lowlight = createLowlight(all);
 
 const extensions = [
   StarterKit,
-  Table,
-  TableCell,
-  TableHeader,
+  Table.configure({
+    resizable: true,
+  }),
   TableRow,
+  TableHeader,
+  TableCell,
   CodeBlockLowlight.extend({
     addNodeView() {
       return ReactNodeViewRenderer(CodeBlockComponent);
@@ -35,6 +37,7 @@ interface TiptapEditorProps {
 
 export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isTableActive, setIsTableActive] = useState(false);
 
   const editor = useEditor({
     extensions,
@@ -44,6 +47,16 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
         class:
           "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] p-4 border border-gray-300 rounded-lg",
       },
+    },
+    onUpdate: ({ editor }) => {
+      // Check if cursor is in a table
+      const tableActive = editor.isActive("table");
+      setIsTableActive(tableActive);
+    },
+    onSelectionUpdate: ({ editor }) => {
+      // Check if cursor is in a table
+      const tableActive = editor.isActive("table");
+      setIsTableActive(tableActive);
     },
   });
 
@@ -132,7 +145,7 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
             >
               Table
             </button>
-            {editor.isActive("table") && (
+            {isTableActive && (
               <>
                 <div className="h-6 w-px bg-gray-400 mx-2"></div>
                 <button
