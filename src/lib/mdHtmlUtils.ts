@@ -94,7 +94,7 @@ export function htmlToMarkdown(html: string): string {
               }
               markdown += `${align}|`;
             }
-            markdown += "\n";
+            markdown += renderMarkdownTableHeader(thCells);
             hasProcessedHeader = true;
           } else if (tdCells.length > 0) {
             // 通常のデータ行として処理
