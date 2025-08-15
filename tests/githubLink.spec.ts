@@ -15,29 +15,52 @@ const mockIssue = {
 
 test.describe("GitHub Link functionality", () => {
   test("issue title links to GitHub issue", async ({ page }) => {
-    // Mock the API response for the issue
-    await page.route(
-      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123(\?.*)?$/,
-      async (route) => {
+    // Block all external network requests to ensure no GitHub access
+    await page.route("**/*", async (route) => {
+      const url = route.request().url();
+
+      // Allow localhost requests for the dev server and static assets
+      if (url.startsWith("http://localhost:")) {
+        await route.continue();
+        return;
+      }
+
+      // Allow data URLs for fonts and other inline resources
+      if (url.startsWith("data:")) {
+        await route.continue();
+        return;
+      }
+
+      // Mock specific API endpoints
+      if (
+        url.match(
+          /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123(\?.*)?$/,
+        )
+      ) {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           body: JSON.stringify(mockIssue),
         });
-      },
-    );
+        return;
+      }
 
-    // Mock the API response for comments
-    await page.route(
-      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123\/comments(\?.*)?$/,
-      async (route) => {
+      if (
+        url.match(
+          /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123\/comments(\?.*)?$/,
+        )
+      ) {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           body: JSON.stringify([]),
         });
-      },
-    );
+        return;
+      }
+
+      // Block all other external requests including github.com
+      await route.abort("blockedbyclient");
+    });
 
     await page.goto("/issues/123?owner=senkenn&repo=github-client");
 
