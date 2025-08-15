@@ -178,7 +178,7 @@ test.describe("Issue editing (E2E)", () => {
     // Wait for table to be inserted
     await page.waitForTimeout(500);
 
-    // Verify table was inserted
+    // Wait for table to be inserted by waiting for the table element to be visible
     const content = issueEditor.locator(".ProseMirror");
     await expect(content.locator("table")).toBeVisible();
 
