@@ -17,9 +17,9 @@ const lowlight = createLowlight(all);
 const extensions = [
   StarterKit,
   Table,
-  TableCell,
-  TableHeader,
   TableRow,
+  TableHeader,
+  TableCell,
   CodeBlockLowlight.extend({
     addNodeView() {
       return ReactNodeViewRenderer(CodeBlockComponent);
@@ -42,6 +42,7 @@ export function TiptapEditor({
 }: TiptapEditorProps) {
   const [isEditing, setIsEditing] = useState(autoEdit);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isTableActive, setIsTableActive] = useState(false);
 
   const editor = useEditor({
     extensions,
@@ -56,6 +57,15 @@ export function TiptapEditor({
       // Check if content has changed from original
       const currentContent = htmlToMarkdown(editor.getHTML());
       setHasChanges(currentContent.trim() !== content.trim());
+      
+      // Check if cursor is in a table
+      const tableActive = editor.isActive("table");
+      setIsTableActive(tableActive);
+    },
+    onSelectionUpdate: ({ editor }) => {
+      // Check if cursor is in a table
+      const tableActive = editor.isActive("table");
+      setIsTableActive(tableActive);
     },
   });
 
@@ -132,6 +142,65 @@ export function TiptapEditor({
             >
               •
             </button>
+            <button
+              type="button"
+              onClick={() =>
+                editor
+                  .chain()
+                  .focus()
+                  .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                  .run()
+              }
+              className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+              title="Insert Table"
+            >
+              Table
+            </button>
+            {isTableActive && (
+              <>
+                <div className="h-6 w-px bg-gray-400 mx-2"></div>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                  className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  title="Add Row"
+                >
+                  +Row
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteRow().run()}
+                  className="px-2 py-1 rounded text-xs bg-orange-200 text-orange-700 hover:bg-orange-300"
+                  title="Delete Row"
+                >
+                  -Row
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                  className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  title="Add Column"
+                >
+                  +Col
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteColumn().run()}
+                  className="px-2 py-1 rounded text-xs bg-orange-200 text-orange-700 hover:bg-orange-300"
+                  title="Delete Column"
+                >
+                  -Col
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  className="px-2 py-1 rounded text-xs bg-red-200 text-red-700 hover:bg-red-300"
+                  title="Delete Table"
+                >
+                  ×Table
+                </button>
+              </>
+            )}
           </div>
           <div className="flex space-x-2">
             <button
@@ -166,10 +235,11 @@ export function TiptapEditor({
             className="absolute inset-0 bg-transparent cursor-pointer"
             onClick={() => setIsEditing(true)}
             aria-label="編集を開始"
+            title="編集を開始"
           >
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                Edit
+                編集を開始
               </span>
             </div>
           </button>

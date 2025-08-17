@@ -1,7 +1,5 @@
 import MarkdownIt from "markdown-it";
 import TurndownService from "turndown";
-// @ts-ignore // TODO: 型定義を追加する
-// import { tables } from "turndown-plugin-gfm";
 
 /**
  * Converts markdown text to HTML
@@ -13,6 +11,34 @@ export function markdownToHtml(markdown: string): string {
     // <pre><code...> タグ内の末尾の改行(\n</code>)を削除する
     .replace(/(<pre><code[^>]*>.*?)\n(<\/code><\/pre>)/gs, "$1$2");
   return html;
+}
+
+/**
+ * Renders markdown table header from header cells
+ */
+function renderMarkdownTableHeader(headerCells: Element[]): string {
+  let markdown = "|";
+  for (const cell of headerCells) {
+    markdown += ` ${cell.textContent || ""} |`;
+  }
+  markdown += "\n|";
+
+  // アラインメント行の処理
+  for (const cell of headerCells) {
+    const style = cell.getAttribute("style") || "";
+    let align = " --- ";
+    if (style.includes("text-align:left")) {
+      align = " :--- ";
+    } else if (style.includes("text-align:center")) {
+      align = " :---: ";
+    } else if (style.includes("text-align:right")) {
+      align = " ---: ";
+    }
+    markdown += `${align}|`;
+  }
+  markdown += "\n";
+
+  return markdown;
 }
 
 /**
@@ -32,33 +58,18 @@ export function htmlToMarkdown(html: string): string {
     replacement: (_content, node) => {
       const table = node as HTMLTableElement;
       let markdown = "\n";
+      // hasProcessedHeader is reset for each table since this function is called once per table
+      let hasProcessedHeader = false;
+      let headerCells: Element[] = [];
 
-      // ヘッダー行の処理
+      // ヘッダー行の処理（theadから探す）
       const thead = table.querySelector("thead");
       if (thead) {
         const headerRow = thead.querySelector("tr");
         if (headerRow) {
-          const headerCells = Array.from(headerRow.querySelectorAll("th"));
-          markdown += "|";
-          for (const cell of headerCells) {
-            markdown += ` ${cell.textContent || ""} |`;
-          }
-          markdown += "\n|";
-
-          // アラインメント行の処理
-          for (const cell of headerCells) {
-            const style = cell.getAttribute("style") || "";
-            let align = " --- ";
-            if (style.includes("text-align:left")) {
-              align = " :--- ";
-            } else if (style.includes("text-align:center")) {
-              align = " :---: ";
-            } else if (style.includes("text-align:right")) {
-              align = " ---: ";
-            }
-            markdown += `${align}|`;
-          }
-          markdown += "\n";
+          headerCells = Array.from(headerRow.querySelectorAll("th"));
+          markdown += renderMarkdownTableHeader(headerCells);
+          hasProcessedHeader = true;
         }
       }
 
@@ -67,12 +78,22 @@ export function htmlToMarkdown(html: string): string {
       if (tbody) {
         const rows = Array.from(tbody.querySelectorAll("tr"));
         for (const row of rows) {
-          const cells = Array.from(row.querySelectorAll("td"));
-          markdown += "|";
-          for (const cell of cells) {
-            markdown += ` ${cell.textContent || ""} |`;
+          // 最初の行にthが含まれている場合はヘッダー行として処理
+          const thCells = Array.from(row.querySelectorAll("th"));
+          const tdCells = Array.from(row.querySelectorAll("td"));
+
+          if (thCells.length > 0 && !hasProcessedHeader) {
+            // tbody内のthをヘッダーとして処理
+            markdown += renderMarkdownTableHeader(thCells);
+            hasProcessedHeader = true;
+          } else if (tdCells.length > 0) {
+            // 通常のデータ行として処理
+            markdown += "|";
+            for (const cell of tdCells) {
+              markdown += ` ${cell.textContent || ""} |`;
+            }
+            markdown += "\n";
           }
-          markdown += "\n";
         }
       }
 

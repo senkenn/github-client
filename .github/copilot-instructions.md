@@ -4,103 +4,55 @@ GitHub Client is a React + TypeScript web application that provides a WYSIWYG ed
 
 **ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
 
-## Working Effectively
-
-### Bootstrap, Build, and Test:
+## Quick Setup
 
 ```bash
-# CRITICAL: Use npm, NOT pnpm (specified in project guidelines)
+# CRITICAL: Use npm, NOT pnpm (project requirement)
 npm install
+npx playwright install  # Required for E2E tests
 
-# Build the application
-npm run build
+# Development server (check if running first)
+ps aux | grep "vite" | grep -v grep || npm run dev  # Port 5173
 
-# Run linting (uses Biome, not ESLint)
-npm run lint
-
-# Run unit tests (Vitest)
-npm run test
-
-# Run E2E tests (Playwright) - requires browser installation first
-npx playwright install
-npm run test:e2e
+# Docker alternative
+echo "VITE_GITHUB_TOKEN=$(gh auth token)" > .env
+docker compose up -d  # Port 7777
 ```
 
-### Development Server:
+## Critical Commands for Chat Sessions
+
+**⚠️ ALWAYS use `:log` variants in chat sessions to ensure output visibility:**
 
 ```bash
-# Start development server
-npm run dev  # Starts on http://localhost:5173
+# Validation commands (MUST pass before committing)
+npm run lint:log     # Code quality check → lint.log
+npm run test:log     # Unit tests → test.log
+npm run test:e2e:log # E2E tests → e2e.log
+npm run build:log    # Production build → build.log
 
-# Build for production
-npm run build && npm run preview  # Preview production build on port 4173
+# Review results
+cat lint.log && cat test.log && cat e2e.log
+
+# Check running processes
+jobs                                     # Background jobs
+ps aux | grep playwright | grep -v grep # E2E test status
 ```
 
-### Docker Development:
+**Never use:**
 
-```bash
-# Using Docker Compose (from README)
-echo "VITE_GITHUB_TOKEN=$(gh auth token)" > .env  # Required for GitHub API
-docker compose up -d  # Runs on http://localhost:7777
-```
+- `npm run lint`, `npm run test`, `npm run test:e2e`, or `npm run build` in chat (blocks output)
+- `sleep` command in chat (unnecessary delay, use background jobs with logs instead)
 
-## Validation Requirements
+## Manual Validation Workflow
 
-### ALWAYS run after making changes:
+After making changes, test these critical user flows:
 
-1. **Code Quality**: `npm run lint:log` - Must pass before committing (outputs to lint.log)
-2. **Unit Tests**: `npm run test:log` - Must pass (outputs to test.log)
-3. **E2E Tests**: `npm run test:e2e:log` - Must pass (outputs to e2e.log)
+1. **Homepage**: Navigate to http://localhost:5173/ → Enter owner/repo → Click "Issues を表示" → Should navigate to /issues
+2. **Persistence**: Enter values → Refresh page → Values should persist
+3. **Search**: Enter `is:closed author:testuser bug fix` → Verify URL params and filter tags
+4. **Navigation**: All links work, no broken routes
 
-### CRITICAL: Always use file output commands in chat sessions:
-
-```bash
-# Use these commands EVERY TIME in chat
-npm run lint:log     # Instead of npm run lint
-npm run test:log     # Instead of npm run test
-npm run test:e2e:log # Instead of npm run test:e2e
-npm run build:log    # Instead of npm run build
-
-# For commands without :log variant
-<command> 2>&1 | tee <logfile>
-```
-
-### Manual Validation Scenarios:
-
-After making any changes, ALWAYS test these critical user workflows:
-
-1. **Homepage Flow**:
-   - Navigate to http://localhost:5173/
-   - Fill owner field (e.g., "testowner")
-   - Fill repo field (e.g., "testrepo")
-   - Click "Issues を表示" button
-   - Should navigate to /issues page (expect API errors without valid token)
-
-2. **localStorage Persistence**:
-   - Enter owner/repo values on homepage
-   - Refresh page (F5 or navigate away and back)
-   - Values should persist and be restored automatically
-
-3. **Navigation Flow**:
-   - Click "Issues" link in navigation
-   - Should navigate to /issues page
-   - Verify search interface displays (search box, author field, state buttons)
-   - Check that "No issues found." message appears (expected without valid API token)
-
-4. **Search Parser Functionality**:
-   - On issues page, enter GitHub-like query: `is:closed author:testuser bug fix`
-   - Click Search button
-   - Verify URL updates with correct parameters: `?state=closed&search=bug+fix&author=testuser`
-   - Check that filter tags appear showing parsed search terms and author
-   - Verify individual filter removal buttons (×) are present
-
-5. **Issue Editing** (if making editor changes):
-   - Navigate to an issue detail page
-   - Edit issue content in TipTap editor
-   - Save changes
-   - Verify content is updated
-
-**Expected Results**: All navigation and UI interaction should work smoothly. API errors are normal without a valid GitHub token in .env, but UI functionality should remain intact.
+**Expected**: UI functions normally. API errors are OK without GitHub token.
 
 ## Technology Stack & Key Files
 
@@ -187,47 +139,11 @@ VITE_GITHUB_TOKEN=your_github_token_here
 
 ### Common Issues:
 
-1. **Playwright browser download fails**:
-
-   ```bash
-   # Try with system dependencies
-   npx playwright install --with-deps
-   ```
-
-2. **Build failures**:
-   - Check Node.js version (uses latest in CI)
-   - Clear node_modules and reinstall: `rm -rf node_modules package-lock.json && npm install`
-
-3. **API errors during development**:
-   - Ensure VITE_GITHUB_TOKEN is set in .env
-   - Use mock data in tests instead of real API calls
-
-4. **Tailwind CSS issues**:
-   - Uses Tailwind v4 with Vite plugin
-   - No separate PostCSS config needed
-   - Import in `src/styles.css`: `@import "tailwindcss";`
-
-5. **Spell check failures**:
-   - Add unknown technical terms to `cspell.yaml` under `words:` section
-   - Common words to add: component names, API terms, test data names
-
-6. **Command execution results not visible in chat**:
-   - When command output is not displayed or accessible in chat interface
-   - **ALWAYS use log file commands in chat sessions**:
-
-   ```bash
-   npm run build:log    # View build output logs (saves to build.log)
-   npm run test:log     # View test execution logs (saves to test.log)
-   npm run lint:log     # View lint results (saves to lint.log)
-   npm run e2e:log      # View E2E test execution logs (saves to e2e.log)
-
-   # For other commands
-   <command> 2>&1 | tee <filename>.log
-   ```
-
-   - These commands save output to log files AND display in terminal
-   - **REQUIRED for all Copilot chat sessions** to ensure output visibility
-   - Log files can be reviewed with `cat <filename>.log`
+1. **Playwright browser download fails**: `npx playwright install --with-deps`
+2. **Build failures**: Clear node_modules: `rm -rf node_modules package-lock.json && npm install`
+3. **API errors**: Ensure VITE_GITHUB_TOKEN is set in .env
+4. **Tailwind CSS issues**: Uses v4 with Vite plugin, import in `src/styles.css`: `@import "tailwindcss";`
+5. **Spell check failures**: Add technical terms to `cspell.yaml` under `words:` section
 
 ## Type Safety Guidelines
 
@@ -297,10 +213,19 @@ return response.data.map((item) => ({
 ```bash
 npm install                    # Install dependencies (60s)
 npm run dev                   # Start dev server (port 5173)
+                              # ⚠️ Always check if already running first!
 npm run build                 # Build for production (4 min)
 npm run lint                  # Check code quality (fast)
 npm run test                  # Run unit tests (1 min)
 npm run test:e2e             # Run E2E tests (15 min)
+```
+
+### Development Server Check Commands:
+
+```bash
+# Before running npm run dev, always check:
+ps aux | grep "vite" | grep -v grep  # Check for running Vite process
+lsof -i :5173                        # Check port 5173 usage
 ```
 
 ### File Extensions by Test Type:
