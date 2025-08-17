@@ -158,11 +158,27 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
                 </button>
                 <button
                   type="button"
+                  onClick={() => editor.chain().focus().deleteRow().run()}
+                  className="px-2 py-1 rounded text-xs bg-orange-200 text-orange-700 hover:bg-orange-300"
+                  title="Delete Row"
+                >
+                  -Row
+                </button>
+                <button
+                  type="button"
                   onClick={() => editor.chain().focus().addColumnAfter().run()}
                   className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300"
                   title="Add Column"
                 >
                   +Col
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteColumn().run()}
+                  className="px-2 py-1 rounded text-xs bg-orange-200 text-orange-700 hover:bg-orange-300"
+                  title="Delete Column"
+                >
+                  -Col
                 </button>
                 <button
                   type="button"

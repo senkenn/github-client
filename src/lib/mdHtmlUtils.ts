@@ -1,7 +1,5 @@
 import MarkdownIt from "markdown-it";
 import TurndownService from "turndown";
-// @ts-expect-error // TODO: 型定義を追加する
-// import { tables } from "turndown-plugin-gfm";
 
 /**
  * Converts markdown text to HTML
@@ -33,6 +31,7 @@ export function htmlToMarkdown(html: string): string {
       const table = node as HTMLTableElement;
       let markdown = "\n";
       let hasProcessedHeader = false;
+      let headerCells: Element[] = [];
 
       // ヘッダー行の処理（theadから探す）
       const thead = table.querySelector("thead");
@@ -94,7 +93,7 @@ export function htmlToMarkdown(html: string): string {
               }
               markdown += `${align}|`;
             }
-            markdown += renderMarkdownTableHeader(thCells);
+            markdown += "\n";
             hasProcessedHeader = true;
           } else if (tdCells.length > 0) {
             // 通常のデータ行として処理

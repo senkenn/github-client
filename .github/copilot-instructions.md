@@ -29,8 +29,15 @@ npm run test:e2e
 ### Development Server:
 
 ```bash
-# Start development server
+# IMPORTANT: Always check if dev server is already running before starting
+# Check running processes first:
+ps aux | grep "vite" | grep -v grep  # Look for existing Vite processes
+lsof -i :5173  # Check if port 5173 is already in use
+
+# Start development server (only if not already running)
 npm run dev  # Starts on http://localhost:5173
+
+# If dev server is already running, use the existing instance instead of starting a new one
 
 # Build for production
 npm run build && npm run preview  # Preview production build on port 4173
@@ -55,14 +62,42 @@ docker compose up -d  # Runs on http://localhost:7777
 ### CRITICAL: Always use file output commands in chat sessions:
 
 ```bash
-# Use these commands EVERY TIME in chat
-npm run lint:log     # Instead of npm run lint
-npm run test:log     # Instead of npm run test
-npm run test:e2e:log # Instead of npm run test:e2e
-npm run build:log    # Instead of npm run build
+# Use these commands EVERY TIME in chat - they run in background and save to log files
+npm run lint:log     # Instead of npm run lint (runs in background)
+npm run test:log     # Instead of npm run test (runs in background)
+npm run test:e2e:log # Instead of npm run test:e2e (runs in background)
+npm run build:log    # Instead of npm run build (runs in background)
 
-# For commands without :log variant
-<command> 2>&1 | tee <logfile>
+# All *:log commands automatically run in background with & and save output to files
+# Check results with: cat <logfile>.log
+
+# For commands without :log variant, use manual background execution:
+<command> 2>&1 | tee <logfile> &
+```
+
+### IMPORTANT: Background execution for long-running commands:
+
+```bash
+# All *:log npm scripts automatically run in background and save to log files
+# No need to manually add & - it's built into the scripts
+
+npm run build:log     # Automatically runs in background, saves to build.log
+npm run test:e2e:log  # Automatically runs in background, saves to e2e.log
+npm run test:log      # Automatically runs in background, saves to test.log
+npm run lint:log      # Automatically runs in background, saves to lint.log
+
+# Check results:
+cat build.log     # Review build results
+cat e2e.log       # Review E2E test results
+cat test.log      # Review unit test results
+cat lint.log      # Review lint results
+
+# Check if background jobs are still running:
+jobs              # List active background jobs
+ps aux | grep npm # Check for running npm processes
+
+# For commands without :log variant, manually add background execution:
+<command> 2>&1 | tee <logfile> &
 ```
 
 ### Manual Validation Scenarios:
@@ -297,10 +332,19 @@ return response.data.map((item) => ({
 ```bash
 npm install                    # Install dependencies (60s)
 npm run dev                   # Start dev server (port 5173)
+                              # ⚠️ Always check if already running first!
 npm run build                 # Build for production (4 min)
 npm run lint                  # Check code quality (fast)
 npm run test                  # Run unit tests (1 min)
 npm run test:e2e             # Run E2E tests (15 min)
+```
+
+### Development Server Check Commands:
+
+```bash
+# Before running npm run dev, always check:
+ps aux | grep "vite" | grep -v grep  # Check for running Vite process
+lsof -i :5173                        # Check port 5173 usage
 ```
 
 ### File Extensions by Test Type:
