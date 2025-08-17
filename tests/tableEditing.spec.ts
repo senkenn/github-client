@@ -226,10 +226,6 @@ test.describe("Table Editing Functionality", () => {
     // Verify that table still exists after editing attempt
     await expect(content.locator("table")).toBeVisible();
 
-    // Check if text was entered (more lenient check)
-    const cellText = await editCell.textContent();
-    console.log("Cell text after editing:", cellText);
-
     // Test deleting a row (should go from 4 rows back to 3)
     const rowCountBeforeDelete = await content.locator("table tr").count();
     await page.click('button:has-text("-Row")');
