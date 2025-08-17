@@ -62,7 +62,7 @@ test.describe("GitHub Link functionality", () => {
       await route.abort("blockedbyclient");
     });
 
-    await page.goto("/issues/123?owner=senkenn&repo=github-client");
+    await page.goto("/issues/123?owner=testowner&repo=testrepo");
 
     // Check that the issue title is displayed
     await expect(
@@ -72,9 +72,9 @@ test.describe("GitHub Link functionality", () => {
       }),
     ).toBeVisible();
 
-    // Check that the issue title is a link to GitHub
+    // Check that the issue title is a link (but don't access GitHub)
     const githubLink = page.locator(
-      'h1 a[href="https://github.com/senkenn/github-client/issues/123"]',
+      'h1 a[href="https://github.com/testowner/testrepo/issues/123"]',
     );
     await expect(githubLink).toBeVisible();
     await expect(githubLink).toContainText("#123 Test Issue for GitHub Link");
