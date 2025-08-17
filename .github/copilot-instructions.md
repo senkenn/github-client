@@ -38,7 +38,10 @@ jobs                                     # Background jobs
 ps aux | grep playwright | grep -v grep # E2E test status
 ```
 
-**Never use:** `npm run lint`, `npm run test`, `npm run test:e2e`, or `npm run build` in chat (blocks output)
+**Never use:**
+
+- `npm run lint`, `npm run test`, `npm run test:e2e`, or `npm run build` in chat (blocks output)
+- `sleep` command in chat (unnecessary delay, use background jobs with logs instead)
 
 ## Manual Validation Workflow
 
