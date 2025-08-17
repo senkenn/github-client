@@ -28,6 +28,8 @@ pre-commit:
         NO_COLOR=1 npm test -- {staged_files}
 
     test-e2e:
+      # Note: Double braces {{ }} are correct lefthook syntax for combining multiple glob patterns
+      # This matches both tests/*.{spec,test}.{js,ts} (direct files) and tests/**/*.{spec,test}.{js,ts} (nested files)
       glob: "{{tests/*.{spec,test}.{js,ts},{tests/**/*.{spec,test}.{js,ts}}"
       run: |
         FORCE_COLOR=0 npm run test:e2e -- {staged_files}

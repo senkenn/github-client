@@ -14,6 +14,34 @@ export function markdownToHtml(markdown: string): string {
 }
 
 /**
+ * Renders markdown table header from header cells
+ */
+function renderMarkdownTableHeader(headerCells: Element[]): string {
+  let markdown = "|";
+  for (const cell of headerCells) {
+    markdown += ` ${cell.textContent || ""} |`;
+  }
+  markdown += "\n|";
+
+  // アラインメント行の処理
+  for (const cell of headerCells) {
+    const style = cell.getAttribute("style") || "";
+    let align = " --- ";
+    if (style.includes("text-align:left")) {
+      align = " :--- ";
+    } else if (style.includes("text-align:center")) {
+      align = " :---: ";
+    } else if (style.includes("text-align:right")) {
+      align = " ---: ";
+    }
+    markdown += `${align}|`;
+  }
+  markdown += "\n";
+
+  return markdown;
+}
+
+/**
  * Converts HTML text to markdown
  */
 export function htmlToMarkdown(html: string): string {
@@ -40,26 +68,7 @@ export function htmlToMarkdown(html: string): string {
         const headerRow = thead.querySelector("tr");
         if (headerRow) {
           headerCells = Array.from(headerRow.querySelectorAll("th"));
-          markdown += "|";
-          for (const cell of headerCells) {
-            markdown += ` ${cell.textContent || ""} |`;
-          }
-          markdown += "\n|";
-
-          // アラインメント行の処理
-          for (const cell of headerCells) {
-            const style = cell.getAttribute("style") || "";
-            let align = " --- ";
-            if (style.includes("text-align:left")) {
-              align = " :--- ";
-            } else if (style.includes("text-align:center")) {
-              align = " :---: ";
-            } else if (style.includes("text-align:right")) {
-              align = " ---: ";
-            }
-            markdown += `${align}|`;
-          }
-          markdown += "\n";
+          markdown += renderMarkdownTableHeader(headerCells);
           hasProcessedHeader = true;
         }
       }
@@ -75,26 +84,7 @@ export function htmlToMarkdown(html: string): string {
 
           if (thCells.length > 0 && !hasProcessedHeader) {
             // tbody内のthをヘッダーとして処理
-            markdown += "|";
-            for (const cell of thCells) {
-              markdown += ` ${cell.textContent || ""} |`;
-            }
-            markdown += "\n|";
-
-            // アラインメント行の処理
-            for (const cell of thCells) {
-              const style = cell.getAttribute("style") || "";
-              let align = " --- ";
-              if (style.includes("text-align:left")) {
-                align = " :--- ";
-              } else if (style.includes("text-align:center")) {
-                align = " :---: ";
-              } else if (style.includes("text-align:right")) {
-                align = " ---: ";
-              }
-              markdown += `${align}|`;
-            }
-            markdown += "\n";
+            markdown += renderMarkdownTableHeader(thCells);
             hasProcessedHeader = true;
           } else if (tdCells.length > 0) {
             // 通常のデータ行として処理
