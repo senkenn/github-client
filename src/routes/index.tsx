@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { checkRepositoryExists } from "../lib/github";
 import { loadOwnerRepo, saveOwnerRepo } from "../lib/localStorage";
 
@@ -8,9 +8,6 @@ export const Route = createFileRoute("/")({
 });
 
 function RouteComponent() {
-  const ownerInputId = useId();
-  const repoInputId = useId();
-
   // Initialize state with localStorage values or empty strings
   const [owner, setOwner] = useState(() => {
     if (typeof window !== "undefined") {
@@ -73,14 +70,14 @@ function RouteComponent() {
           )}
           <div>
             <label
-              htmlFor={ownerInputId}
+              htmlFor="owner"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Owner
             </label>
             <input
               type="text"
-              id={ownerInputId}
+              id="owner"
               value={owner}
               onChange={(e) => setOwner(e.target.value)}
               placeholder="例: microsoft"
@@ -91,14 +88,14 @@ function RouteComponent() {
           </div>
           <div>
             <label
-              htmlFor={repoInputId}
+              htmlFor="repo"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Repository
             </label>
             <input
               type="text"
-              id={repoInputId}
+              id="repo"
               value={repo}
               onChange={(e) => setRepo(e.target.value)}
               placeholder="例: vscode"
