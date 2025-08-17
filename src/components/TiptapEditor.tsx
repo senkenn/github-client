@@ -16,9 +16,7 @@ const lowlight = createLowlight(all);
 
 const extensions = [
   StarterKit,
-  Table.configure({
-    resizable: true,
-  }),
+  Table,
   TableRow,
   TableHeader,
   TableCell,
