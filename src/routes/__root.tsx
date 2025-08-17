@@ -6,7 +6,10 @@ export const Route = createRootRoute({
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow border-b border-gray-200 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold text-gray-900">
+          <Link
+            to="/"
+            className="text-xl font-bold text-black hover:text-blue-600"
+          >
             GitHub Client
           </Link>
         </div>

@@ -128,7 +128,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
         <Link
           to="/issues"
           search={{ owner, repo }}
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+          className="inline-flex items-center text-black hover:text-blue-600 mb-4"
         >
           ← Back to Issues
         </Link>
@@ -140,7 +140,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
                 href={`https://github.com/${owner}/${repo}/issues/${issue.number}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-900 hover:text-blue-600 transition-colors"
+                className="text-black hover:text-blue-600 transition-colors"
               >
                 #{issue.number} {issue.title}
               </a>

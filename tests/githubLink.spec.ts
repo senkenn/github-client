@@ -84,7 +84,7 @@ test.describe("GitHub Link functionality", () => {
     await expect(githubLink).toHaveAttribute("rel", "noopener noreferrer");
 
     // Verify link styling
-    await expect(githubLink).toHaveClass(/text-gray-900/);
+    await expect(githubLink).toHaveClass(/text-black/);
     await expect(githubLink).toHaveClass(/hover:text-blue-600/);
   });
 });
