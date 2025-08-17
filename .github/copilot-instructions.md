@@ -29,6 +29,10 @@ npm run test:e2e
 ### Development Server:
 
 ```bash
+# CRITICAL: NEVER restart the development server during testing or debugging
+# The dev server should remain running throughout the entire development session
+# Restarting can cause test failures and break ongoing work
+
 # IMPORTANT: Always check if dev server is already running before starting
 # Check running processes first:
 ps aux | grep "vite" | grep -v grep  # Look for existing Vite processes
@@ -38,6 +42,7 @@ lsof -i :5173  # Check if port 5173 is already in use
 npm run dev  # Starts on http://localhost:5173
 
 # If dev server is already running, use the existing instance instead of starting a new one
+# DO NOT kill or restart the server unless absolutely necessary
 
 # Build for production
 npm run build && npm run preview  # Preview production build on port 4173
@@ -62,11 +67,20 @@ docker compose up -d  # Runs on http://localhost:7777
 ### CRITICAL: Always use file output commands in chat sessions:
 
 ```bash
+# ⚠️ CRITICAL: In chat sessions, ALWAYS use *:log npm scripts, NEVER use normal ones
+# This is mandatory to ensure output visibility and prevent blocking
+
 # Use these commands EVERY TIME in chat - they run in background and save to log files
-npm run lint:log     # Instead of npm run lint (runs in background)
-npm run test:log     # Instead of npm run test (runs in background)
-npm run test:e2e:log # Instead of npm run test:e2e (runs in background)
-npm run build:log    # Instead of npm run build (runs in background)
+npm run lint:log     # ✅ ALWAYS use this in chat (runs in background)
+npm run test:log     # ✅ ALWAYS use this in chat (runs in background)
+npm run test:e2e:log # ✅ ALWAYS use this in chat (runs in background)
+npm run build:log    # ✅ ALWAYS use this in chat (runs in background)
+
+# ❌ NEVER use these in chat sessions:
+# npm run lint     # DON'T USE - blocks terminal and output not visible
+# npm run test     # DON'T USE - blocks terminal and output not visible
+# npm run test:e2e # DON'T USE - blocks terminal and output not visible
+# npm run build    # DON'T USE - blocks terminal and output not visible
 
 # All *:log commands automatically run in background with & and save output to files
 # Check results with: cat <logfile>.log
@@ -98,6 +112,22 @@ ps aux | grep npm # Check for running npm processes
 
 # For commands without :log variant, manually add background execution:
 <command> 2>&1 | tee <logfile> &
+```
+
+### CRITICAL: Never use sleep commands:
+
+```bash
+# ❌ NEVER use sleep commands - they block the terminal unnecessarily
+sleep 30 && tail -30 e2e.log  # DON'T DO THIS
+
+# ✅ Use echo commands for polling instead
+echo "Checking test status..." && ps aux | grep playwright | grep -v grep | wc -l
+echo "Reviewing current results..." && tail -20 e2e.log
+
+# ✅ For waiting on processes, use process monitoring
+ps aux | grep playwright | grep -v grep  # Check if still running
+jobs                                     # Check background jobs
+tail -f e2e.log                         # Follow log in real-time (Ctrl+C to stop)
 ```
 
 ### Manual Validation Scenarios:
@@ -248,16 +278,20 @@ VITE_GITHUB_TOKEN=your_github_token_here
 
 6. **Command execution results not visible in chat**:
    - When command output is not displayed or accessible in chat interface
-   - **ALWAYS use log file commands in chat sessions**:
+   - **⚠️ CRITICAL: ALWAYS use \*:log npm scripts in chat sessions, NEVER normal ones**:
 
    ```bash
+   # ✅ REQUIRED commands for all Copilot chat sessions:
    npm run build:log    # View build output logs (saves to build.log)
    npm run test:log     # View test execution logs (saves to test.log)
    npm run lint:log     # View lint results (saves to lint.log)
-   npm run e2e:log      # View E2E test execution logs (saves to e2e.log)
+   npm run test:e2e:log # View E2E test execution logs (saves to e2e.log)
 
-   # For other commands
-   <command> 2>&1 | tee <filename>.log
+   # ❌ NEVER use these in chat sessions (they block and hide output):
+   # npm run build, npm run test, npm run lint, npm run test:e2e
+
+   # For other commands without :log variant:
+   <command> 2>&1 | tee <filename>.log &
    ```
 
    - These commands save output to log files AND display in terminal

@@ -23,11 +23,11 @@ pre-commit:
         # check file name
         git diff --name-only --cached | npx cspell --no-progress --show-context stdin --cache
     test:
-      glob: "src/**/*.{test,spec}.{js,ts,jsx,tsx}"
+      glob: "src/**/*{spec,test}.{js,ts}"
       run: |
         NO_COLOR=1 npm test -- {staged_files}
 
     test-e2e:
-      glob: "tests/**/*.{js,ts,jsx,tsx}"
+      glob: "{{tests/*.{spec,test}.{js,ts},{tests/**/*.{spec,test}.{js,ts}}"
       run: |
         FORCE_COLOR=0 npm run test:e2e -- {staged_files}

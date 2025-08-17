@@ -219,10 +219,11 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
             className="absolute inset-0 bg-transparent cursor-pointer"
             onClick={() => setIsEditing(true)}
             aria-label="編集を開始"
+            title="編集を開始"
           >
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                Edit
+                編集を開始
               </span>
             </div>
           </button>
