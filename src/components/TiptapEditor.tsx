@@ -57,7 +57,7 @@ export function TiptapEditor({
       // Check if content has changed from original
       const currentContent = htmlToMarkdown(editor.getHTML());
       setHasChanges(currentContent.trim() !== content.trim());
-      
+
       // Check if cursor is in a table
       const tableActive = editor.isActive("table");
       setIsTableActive(tableActive);
