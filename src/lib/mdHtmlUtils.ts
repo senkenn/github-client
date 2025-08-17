@@ -30,6 +30,7 @@ export function htmlToMarkdown(html: string): string {
     replacement: (_content, node) => {
       const table = node as HTMLTableElement;
       let markdown = "\n";
+      // hasProcessedHeader is reset for each table since this function is called once per table
       let hasProcessedHeader = false;
       let headerCells: Element[] = [];
 
