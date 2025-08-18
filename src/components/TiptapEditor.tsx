@@ -80,7 +80,6 @@ export function TiptapEditor({
   const handleCancel = () => {
     if (editor) {
       editor.commands.setContent(markdownToHtml(content));
-      setIsEditing(false);
       setHasChanges(false);
     }
     onCancel();
@@ -218,7 +217,12 @@ export function TiptapEditor({
             <button
               type="button"
               onClick={handleCancel}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+              disabled={!hasChanges}
+              className={`px-4 py-2 rounded text-sm ${
+                hasChanges
+                  ? "bg-gray-500 text-white hover:bg-gray-600"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
             >
               Cancel
             </button>
