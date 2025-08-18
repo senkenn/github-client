@@ -4,6 +4,8 @@ GitHub Client is a React + TypeScript web application that provides a WYSIWYG ed
 
 **ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
 
+Activate project github-client.
+
 ## Quick Setup
 
 ```bash
