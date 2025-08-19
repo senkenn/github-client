@@ -260,24 +260,96 @@ export async function updateIssueBody(
 }
 
 /**
- * Upload an image file and return a data URL for immediate use
+ * Upload an image file to GitHub using repository storage
  * @param file - File to upload
- * @returns Promise that resolves to a data URL for the image
+ * @returns Promise that resolves to a GitHub-hosted URL for the image
  */
 export async function uploadImage(file: File): Promise<string> {
   try {
-    // Convert file to data URL for immediate display
-    const dataUrl = await new Promise<string>((resolve, reject) => {
+    // Convert file to base64
+    const base64Content = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        resolve(reader.result as string);
+        const result = reader.result as string;
+        // Extract base64 content (remove data:image/...;base64, prefix)
+        const base64 = result.split(",")[1];
+        resolve(base64);
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
 
-    return dataUrl;
+    // Generate a unique filename with timestamp to avoid conflicts
+    const timestamp = Date.now();
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const fileName = `${timestamp}-${sanitizedFileName}`;
+
+    // Try to get the current user to use their own repository for assets
+    const user = await octokit.rest.users.getAuthenticated();
+    const username = user.data.login;
+
+    // Try to upload to a dedicated assets repository
+    const assetRepo = "github-client-assets";
+
+    try {
+      // Try to create or get the assets repository
+      let repoExists = true;
+      try {
+        await octokit.rest.repos.get({
+          owner: username,
+          repo: assetRepo,
+        });
+      } catch (_repoError) {
+        // Repository doesn't exist, try to create it
+        try {
+          await octokit.rest.repos.createForAuthenticatedUser({
+            name: assetRepo,
+            description: "Asset storage for GitHub Client",
+            public: true,
+            auto_init: true,
+          });
+        } catch (createError) {
+          console.warn("Could not create assets repository:", createError);
+          repoExists = false;
+        }
+      }
+
+      if (repoExists) {
+        // Upload the file to the repository
+        await octokit.rest.repos.createOrUpdateFileContents({
+          owner: username,
+          repo: assetRepo,
+          path: `images/${fileName}`,
+          message: `Upload image: ${file.name}`,
+          content: base64Content,
+        });
+
+        // Return the raw GitHub URL for the uploaded file
+        const imageUrl = `https://raw.githubusercontent.com/${username}/${assetRepo}/main/images/${fileName}`;
+        return imageUrl;
+      }
+    } catch (uploadError) {
+      console.warn("GitHub repository upload failed:", uploadError);
+    }
+
+    // If repository upload fails, fall back to data URL
+    throw new Error("GitHub upload failed");
   } catch (error) {
-    handleApiError(`upload image ${file.name}`, error);
+    // Fallback to data URL if GitHub upload fails
+    console.warn("GitHub upload failed, falling back to data URL:", error);
+
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader.result as string);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      return dataUrl;
+    } catch (fallbackError) {
+      handleApiError(`upload image ${file.name}`, fallbackError);
+    }
   }
 }
