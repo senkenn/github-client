@@ -2,12 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { formatDateFromIso } from "../lib/dateUtils";
 import {
+  createComment,
   getIssue,
   getIssueComments,
   updateComment,
   updateIssueBody,
 } from "../lib/github";
 import type { GitHubComment, GitHubIssue } from "../types/github";
+import { CommentForm } from "./CommentForm";
 import { IssueBadge } from "./IssueBadge";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { TiptapEditor } from "./TiptapEditor";
@@ -23,6 +25,7 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
   const [issue, setIssue] = useState<GitHubIssue | null>(null);
   const [comments, setComments] = useState<GitHubComment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreatingComment, setIsCreatingComment] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,6 +45,25 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
 
     fetchData();
   }, [issueNumber, owner, repo]);
+
+  const handleCreateComment = async (content: string) => {
+    setIsCreatingComment(true);
+    try {
+      const newComment = await createComment(owner, repo, issueNumber, content);
+      setComments((prev) => [...prev, newComment]);
+      // Update issue comment count if available
+      if (issue) {
+        setIssue((prev) =>
+          prev ? { ...prev, comments: prev.comments + 1 } : null,
+        );
+      }
+    } catch (error) {
+      console.error("Failed to create comment:", error);
+      throw error; // Re-throw to let CommentForm handle the error
+    } finally {
+      setIsCreatingComment(false);
+    }
+  };
 
   const handleUpdateComment = async (commentId: number, newContent: string) => {
     setComments((prev) =>
@@ -218,6 +240,12 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
         {comments.length === 0 && (
           <div className="text-center py-8 text-gray-500">No comments yet.</div>
         )}
+
+        {/* Add new comment form */}
+        <CommentForm
+          onSubmit={handleCreateComment}
+          isSubmitting={isCreatingComment}
+        />
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ const mockListForRepo = vi.fn();
 const mockGetRepo = vi.fn();
 const mockGetIssue = vi.fn();
 const mockListComments = vi.fn();
+const mockCreateComment = vi.fn();
 
 // Mock Octokit before importing the module
 vi.mock("@octokit/rest", () => ({
@@ -17,13 +18,14 @@ vi.mock("@octokit/rest", () => ({
         listForRepo: mockListForRepo,
         get: mockGetIssue,
         listComments: mockListComments,
+        createComment: mockCreateComment,
       },
     },
   })),
 }));
 
 // Import after mocking
-const { getIssues, checkRepositoryExists, getIssue, getIssueComments } =
+const { getIssues, checkRepositoryExists, getIssue, getIssueComments, createComment } =
   await import("./github");
 
 describe("github.ts", () => {
@@ -392,6 +394,56 @@ describe("github.ts", () => {
       await expect(
         getIssueComments(123, "test-owner", "test-repo"),
       ).rejects.toThrow("Failed to fetch comments for issue 123: API Error");
+    });
+  });
+
+  describe("createComment", () => {
+    it("should create a new comment successfully", async () => {
+      const mockComment: GitHubComment = {
+        id: 999,
+        body: "New test comment",
+        created_at: "2024-01-03T00:00:00Z",
+        updated_at: "2024-01-03T00:00:00Z",
+        user: { login: "testuser", avatar_url: "avatar.jpg" },
+      };
+
+      mockCreateComment.mockResolvedValueOnce({ data: mockComment });
+
+      const result = await createComment("test-owner", "test-repo", 123, "New test comment");
+
+      expect(result).toEqual(mockComment);
+      expect(mockCreateComment).toHaveBeenCalledWith({
+        owner: "test-owner",
+        repo: "test-repo",
+        issue_number: 123,
+        body: "New test comment",
+      });
+    });
+
+    it("should throw error when API fails", async () => {
+      const error = new Error("API Error");
+      mockCreateComment.mockRejectedValueOnce(error);
+
+      await expect(
+        createComment("test-owner", "test-repo", 123, "Test comment"),
+      ).rejects.toThrow("Failed to create comment on issue 123: API Error");
+    });
+
+    it("should handle missing user data", async () => {
+      const mockComment = {
+        id: 999,
+        body: "Test comment",
+        created_at: "2024-01-03T00:00:00Z",
+        updated_at: "2024-01-03T00:00:00Z",
+        user: null, // Missing user data
+      };
+
+      mockCreateComment.mockResolvedValueOnce({ data: mockComment });
+
+      const result = await createComment("test-owner", "test-repo", 123, "Test comment");
+
+      expect(result.user.login).toBe("unknown");
+      expect(result.user.avatar_url).toBe("");
     });
   });
 });

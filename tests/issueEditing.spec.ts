@@ -138,4 +138,86 @@ test.describe("Issue editing (E2E)", () => {
     await commentEditor.getByRole("button", { name: "Save" }).click();
     await expect(content).toContainText("Updated comment body");
   });
+
+  test("can add a new comment", async ({ page }) => {
+    // GET issue (no patch expected here)
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockIssue),
+        });
+      },
+    );
+
+    // GET comments - initially empty
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123\/comments(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]),
+        });
+      },
+    );
+
+    // POST new comment
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123\/comments(\?.*)?$/,
+      async (route) => {
+        if (route.request().method() === "POST") {
+          const json = JSON.parse(route.request().postData() || "{}");
+          expect(json.body).toBe("This is a new comment");
+          await route.fulfill({
+            status: 201,
+            contentType: "application/json",
+            body: JSON.stringify({
+              id: 999,
+              body: json.body,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              user: { login: "testuser", avatar_url: "https://example.com/testuser.png" },
+            }),
+          });
+          return;
+        }
+        // Handle GET request (return empty array for initial load)
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]),
+        });
+      },
+    );
+
+    await page.goto("/issues/123?owner=microsoft&repo=vscode");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /#123\s+Editable Issue/ }),
+    ).toBeVisible();
+
+    // Initially should show "No comments yet"
+    await expect(page.getByText("No comments yet.")).toBeVisible();
+
+    // Click on the comment form
+    await page.getByRole("button", { name: "Write a comment..." }).click();
+
+    // Find the comment form editor
+    const commentForm = page.locator('.bg-white.border.border-gray-200.rounded-lg').last();
+    const commentEditor = commentForm.getByTestId("tiptap-editor");
+    
+    // Write in the editor
+    const content = commentEditor.locator(".ProseMirror");
+    await content.click();
+    await page.keyboard.type("This is a new comment");
+    
+    // Save the comment
+    await commentEditor.getByRole("button", { name: "Save" }).click();
+
+    // Verify the comment appears
+    await expect(page.getByText("This is a new comment")).toBeVisible();
+    await expect(page.getByText("No comments yet.")).not.toBeVisible();
+  });
 });
