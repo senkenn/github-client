@@ -218,6 +218,43 @@ export async function updateComment(
 }
 
 /**
+ * Create a new comment on an issue
+ * @param owner - Repository owner username
+ * @param repo - Repository name
+ * @param issueNumber - Issue number to add comment to
+ * @param markdown - Markdown content for the new comment
+ * @returns Promise that resolves to created comment data
+ */
+export async function createComment(
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  markdown: string,
+): Promise<GitHubComment> {
+  try {
+    const response = await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: issueNumber,
+      body: markdown,
+    });
+
+    return {
+      id: response.data.id,
+      body: response.data.body || "",
+      created_at: response.data.created_at,
+      updated_at: response.data.updated_at,
+      user: {
+        login: response.data.user?.login || "unknown",
+        avatar_url: response.data.user?.avatar_url || "",
+      },
+    } satisfies GitHubComment;
+  } catch (error) {
+    handleApiError(`create comment on issue ${issueNumber}`, error);
+  }
+}
+
+/**
  * Update an issue's body content
  * @param owner - Repository owner username
  * @param repo - Repository name
