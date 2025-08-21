@@ -37,12 +37,27 @@ test.describe("Table Editing Functionality", () => {
       });
     });
 
+    // Mock single issue
+    await page.route("**/repos/testowner/testrepo/issues/1", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(mockIssue),
+      });
+    });
+
     await page.goto("/");
     // Fill in owner and repo to navigate to issues page
     await page.fill('input[id="owner"]', "testowner");
     await page.fill('input[id="repo"]', "testrepo");
     await page.getByRole("button", { name: "Issues を表示" }).click();
-    await page.waitForURL("**/issues**");
+
+    // Wait for navigation to issues page
+    await page.waitForTimeout(1000); // Give time for navigation
+
+    // Navigate to issue detail page for editing
+    await page.goto("/issues/1?owner=testowner&repo=testrepo&state=open");
+    await page.waitForLoadState("networkidle");
   });
 
   test("should show table editing buttons when table is active", async ({
@@ -76,22 +91,15 @@ test.describe("Table Editing Functionality", () => {
     await page.goto("/issues/1?owner=testowner&repo=testrepo");
 
     // Wait for the editor to load
-    await page.waitForSelector('[data-testid="tiptap-editor"]', {
-      timeout: 10000,
-    });
+    await page.waitForSelector('[data-testid="tiptap-editor"]');
 
-    // Click to start editing using the same pattern as issueEditing.spec.ts
-    const editor = page.getByTestId("tiptap-editor");
-    await editor.getByRole("button", { name: "編集を開始" }).click();
-
-    // Wait for edit mode to activate
-    await page.waitForSelector('button:has-text("Table")', { timeout: 5000 });
+    await page.waitForSelector('button:has-text("Table")');
 
     // Insert a table
     await page.click('button:has-text("Table")');
 
     // Wait for table to be inserted and table buttons to appear
-    await page.waitForSelector('button:has-text("+Row")', { timeout: 5000 });
+    await page.waitForSelector('button:has-text("+Row")');
 
     // Check that table editing buttons appear
     await expect(page.locator('button:has-text("+Row")')).toBeVisible();
@@ -132,22 +140,16 @@ test.describe("Table Editing Functionality", () => {
     await page.goto("/issues/1?owner=testowner&repo=testrepo");
 
     // Wait for the editor to load
-    await page.waitForSelector('[data-testid="tiptap-editor"]', {
-      timeout: 10000,
-    });
+    await page.waitForSelector('[data-testid="tiptap-editor"]');
 
-    // Click to start editing using the same pattern as issueEditing.spec.ts
-    const editor = page.getByTestId("tiptap-editor");
-    await editor.getByRole("button", { name: "編集を開始" }).click();
-
-    // Wait for edit mode to activate
-    await page.waitForSelector('button:has-text("Table")', { timeout: 5000 });
+    // Editor is now always in edit mode, so directly wait for Table button
+    await page.waitForSelector('button:has-text("Table")');
 
     // Insert a table
     await page.click('button:has-text("Table")');
 
     // Wait for table to be inserted and table buttons to appear
-    await page.waitForSelector('button:has-text("-Row")', { timeout: 5000 });
+    await page.waitForSelector('button:has-text("-Row")');
 
     // Check that delete buttons have orange styling
     const deleteRowButton = page.locator('button:has-text("-Row")');
@@ -185,15 +187,12 @@ test.describe("Table Editing Functionality", () => {
     await page.goto("/issues/1?owner=testowner&repo=testrepo");
 
     // Wait for the editor to load
-    await page.waitForSelector('[data-testid="tiptap-editor"]', {
-      timeout: 10000,
-    });
+    await page.waitForSelector('[data-testid="tiptap-editor"]');
 
     const editor = page.getByTestId("tiptap-editor");
-    await editor.getByRole("button", { name: "編集を開始" }).click();
 
-    // Insert a table
-    await page.waitForSelector('button:has-text("Table")', { timeout: 5000 });
+    // Editor is now always in edit mode, so directly wait for Table button and insert table
+    await page.waitForSelector('button:has-text("Table")');
     await page.click('button:has-text("Table")');
 
     const content = editor.locator(".ProseMirror");
@@ -203,8 +202,8 @@ test.describe("Table Editing Functionality", () => {
     const firstHeaderCell = content.locator("table th").first();
     await firstHeaderCell.click();
 
-    // Wait for table controls to appear with longer timeout
-    await page.waitForSelector('button:has-text("+Row")', { timeout: 10000 });
+    // Wait for table controls to appear with shorter timeout
+    await page.waitForSelector('button:has-text("+Row")');
 
     // Test adding a row
     await page.click('button:has-text("+Row")');
@@ -312,21 +311,18 @@ test.describe("Table Editing Functionality", () => {
     await page.goto("/issues/1?owner=testowner&repo=testrepo");
 
     // Wait for the editor to load
-    await page.waitForSelector('[data-testid="tiptap-editor"]', {
-      timeout: 10000,
-    });
+    await page.waitForSelector('[data-testid="tiptap-editor"]');
 
     const editor = page.getByTestId("tiptap-editor");
-    await editor.getByRole("button", { name: "編集を開始" }).click();
 
-    // Clear existing content
+    // Editor is now always in edit mode, so directly access content
     const content = editor.locator(".ProseMirror");
     await content.click();
     await page.keyboard.press("Control+a");
     await page.keyboard.press("Delete");
 
     // Insert table
-    await page.waitForSelector('button:has-text("Table")', { timeout: 5000 });
+    await page.waitForSelector('button:has-text("Table")');
     await page.click('button:has-text("Table")');
 
     // Fill in table content
@@ -373,7 +369,6 @@ test.describe("Table Editing Functionality", () => {
       (response) =>
         response.url().includes("repos/testowner/testrepo/issues/1") &&
         response.request().method() === "PATCH",
-      { timeout: 10000 }, // Increase timeout to 10 seconds
     );
 
     // Save the content

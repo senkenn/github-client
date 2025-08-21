@@ -1,8 +1,35 @@
 import { Octokit } from "@octokit/rest";
 import type { GitHubComment, GitHubIssue } from "../types/github";
 
+const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
+
 const octokit = new Octokit({
-  auth: import.meta.env.VITE_GITHUB_TOKEN,
+  auth: githubToken,
+  userAgent: "github-client-app/1.0.0",
+  request: {
+    fetch: (url: string, options: RequestInit = {}) => {
+      // タイムスタンプを追加してキャッシュを回避
+      const separator = url.includes("?") ? "&" : "?";
+      const urlWithTimestamp = `${url}${separator}_t=${Date.now()}`;
+
+      // CORSに対応したfetchオプション
+      const corsOptions: RequestInit = {
+        ...options,
+        mode: "cors",
+        credentials: "omit",
+        cache: "no-cache",
+        headers: {
+          ...options.headers,
+          Accept: "application/vnd.github+json",
+          "User-Agent": "github-client-app/1.0.0",
+        },
+      };
+
+      return fetch(urlWithTimestamp, corsOptions).catch((error) => {
+        throw new Error(`Network error: ${error.message}`);
+      });
+    },
+  },
 });
 
 /**
@@ -46,7 +73,7 @@ export async function checkRepositoryExists(
     ) {
       return false;
     }
-    // その他のエラーの場合は再スロー
+
     throw error;
   }
 }
@@ -81,16 +108,17 @@ export async function getIssues(
     // Filter out pull requests - GitHub API includes PRs in issues endpoint
     let issuesOnly = response.data.filter((item) => !item.pull_request);
 
-    // Client-side search filtering if search term is provided
+    // Apply client-side search filtering if search term is provided
     if (filters?.search) {
       const searchTerm = filters.search.toLowerCase();
       issuesOnly = issuesOnly.filter(
         (issue) =>
           issue.title.toLowerCase().includes(searchTerm) ||
-          issue.body?.toLowerCase().includes(searchTerm),
+          (issue.body || "").toLowerCase().includes(searchTerm),
       );
     }
 
+    // Normalize the response data to ensure body is never undefined
     return issuesOnly.map((issue) => ({
       id: issue.id,
       number: issue.number,
@@ -255,6 +283,6 @@ export async function updateIssueBody(
       comments: issueData.comments,
     } satisfies GitHubIssue;
   } catch (error) {
-    handleApiError(`update issue ${issueNumber} body`, error);
+    handleApiError(`update issue ${issueNumber}`, error);
   }
 }

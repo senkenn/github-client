@@ -55,8 +55,6 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
           : comment,
       ),
     );
-    // ここで実際のAPI更新を行う
-    console.log("Updating comment:", commentId, newContent);
     try {
       await updateComment(owner, repo, commentId, newContent);
     } catch (e) {

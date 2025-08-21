@@ -6,6 +6,17 @@ GitHub Client is a React + TypeScript web application that provides a WYSIWYG ed
 
 Activate project github-client.
 
+## ⚠️ CRITICAL CHAT RESTRICTIONS
+
+**NEVER DO THESE IN CHAT SESSIONS:**
+
+- ❌ Use `sleep` command (unnecessary delay)
+- ❌ Restart development server (`npm run dev`, `kill vite`, etc.)
+- ❌ Execute `npm run dev` in chat (should be run manually)
+- ❌ Use blocking commands without `:log` variants
+
+**WHY:** These commands block chat output and cause unnecessary delays.
+
 ## Quick Setup
 
 ```bash
@@ -42,8 +53,30 @@ ps aux | grep playwright | grep -v grep # E2E test status
 
 **Never use:**
 
-- `npm run lint`, `npm run test`, `npm run test:e2e`, or `npm run build` in chat (blocks output)
-- `sleep` command in chat (unnecessary delay, use background jobs with logs instead)
+- Blocking commands without `:log` variants (blocks output)
+- Background processes or server restarts in chat sessions
+
+## Technical Debt Prevention
+
+**MANDATORY after any code implementation:**
+
+```bash
+# ALWAYS run these validation commands after code changes
+npm run lint:log     # Check for code quality issues
+npm run test:log     # Verify unit tests pass
+npm run test:e2e:log # Ensure E2E tests pass
+
+# Review all results
+cat lint.log && cat test.log && cat e2e.log
+```
+
+**Purpose:** Prevent technical debt by catching issues early:
+
+- **Lint errors**: Code style, potential bugs, unused variables
+- **Unit test failures**: Broken logic, type errors, edge cases
+- **E2E test failures**: UI regressions, integration issues
+
+**NEVER commit code without running these validation steps.**
 
 ## Manual Validation Workflow
 
@@ -237,8 +270,10 @@ lsof -i :5173                        # Check port 5173 usage
 
 ### Critical Validation Sequence:
 
-1. Run all commands with appropriate timeouts
-2. Test homepage and navigation manually
-3. Verify localStorage persistence works
-4. Check that build produces no errors
-5. Ensure all tests pass before committing
+1. **Technical Debt Check**: `npm run lint:log && npm run test:log && npm run test:e2e:log`
+2. **Review Results**: `cat lint.log && cat test.log && cat e2e.log`
+3. **Manual Testing**: Test critical user flows (homepage, persistence, search, navigation)
+4. **Build Verification**: `npm run build:log` - Ensure production build succeeds
+5. **Final Check**: All tests pass, no lint errors, UI functions normally
+
+**⚠️ NEVER skip step 1-2. Technical debt accumulates quickly without validation.**
