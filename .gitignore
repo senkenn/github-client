@@ -25,6 +25,9 @@ dist-ssr
 
 .cspellcache
 
+# AI Assistant files
+.serena/
+
 # Playwright
 test-results/
 playwright-report/

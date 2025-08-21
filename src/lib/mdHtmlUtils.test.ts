@@ -122,4 +122,72 @@ describe("markdown/html edge cases", () => {
     // Empty code blocks get converted to empty string by turndown
     expect(result).toBe("");
   });
+
+  it("should handle multiple tables in the same HTML correctly", () => {
+    // Test case to verify that hasProcessedHeader is properly reset between tables
+    const htmlWithMultipleTables = `
+      <table>
+        <thead>
+          <tr><th>Header1</th><th>Header2</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Data1</td><td>Data2</td></tr>
+        </tbody>
+      </table>
+      
+      <p>Some text between tables</p>
+      
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Age</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Alice</td><td>25</td></tr>
+        </tbody>
+      </table>
+    `;
+
+    const result = htmlToMarkdown(htmlWithMultipleTables);
+
+    // Both tables should have proper headers
+    expect(result).toContain("| Header1 | Header2 |");
+    expect(result).toContain("| Data1 | Data2 |");
+    expect(result).toContain("| Name | Age |");
+    expect(result).toContain("| Alice | 25 |");
+
+    // Count the number of header separator lines (should be 2, one for each table)
+    const headerSeparatorLines = result.match(/\|\s*---\s*\|\s*---\s*\|/g);
+    expect(headerSeparatorLines).toHaveLength(2);
+  });
+
+  it("should handle multiple tables with tbody-only headers correctly", () => {
+    // Test edge case where tables use th in tbody instead of thead
+    const htmlWithMultipleTables = `
+      <table>
+        <tbody>
+          <tr><th>First</th><th>Second</th></tr>
+          <tr><td>A</td><td>B</td></tr>
+        </tbody>
+      </table>
+      
+      <table>
+        <tbody>
+          <tr><th>Name</th><th>Value</th></tr>
+          <tr><td>Test</td><td>123</td></tr>
+        </tbody>
+      </table>
+    `;
+
+    const result = htmlToMarkdown(htmlWithMultipleTables);
+
+    // Both tables should have proper headers processed
+    expect(result).toContain("| First | Second |");
+    expect(result).toContain("| A | B |");
+    expect(result).toContain("| Name | Value |");
+    expect(result).toContain("| Test | 123 |");
+
+    // Count the number of header separator lines (should be 2, one for each table)
+    const headerSeparatorLines = result.match(/\|\s*---\s*\|\s*---\s*\|/g);
+    expect(headerSeparatorLines).toHaveLength(2);
+  });
 });

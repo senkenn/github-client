@@ -67,7 +67,7 @@ test.describe("Issue editing (E2E)", () => {
     ).toBeVisible();
 
     const issueEditor = page.getByTestId("tiptap-editor").first();
-    await issueEditor.getByRole("button", { name: "編集を開始" }).click();
+    // With auto-edit mode, no need to click "編集を開始" button
     const content = issueEditor.locator(".ProseMirror");
     await content.click();
     await page.keyboard.press(
@@ -128,7 +128,7 @@ test.describe("Issue editing (E2E)", () => {
 
     const editors = page.getByTestId("tiptap-editor");
     const commentEditor = editors.nth(1);
-    await commentEditor.getByRole("button", { name: "編集を開始" }).click();
+    // With auto-edit mode, no need to click "編集を開始" button
     const content = commentEditor.locator(".ProseMirror");
     await content.click();
     await page.keyboard.press(
@@ -137,5 +137,87 @@ test.describe("Issue editing (E2E)", () => {
     await page.keyboard.type("Updated comment body");
     await commentEditor.getByRole("button", { name: "Save" }).click();
     await expect(content).toContainText("Updated comment body");
+  });
+
+  test("save button is disabled when no changes are made", async ({ page }) => {
+    // GET issue
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockIssue),
+        });
+      },
+    );
+
+    // GET comments
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123\/comments(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([mockComment]),
+        });
+      },
+    );
+
+    await page.goto("/issues/123?owner=microsoft&repo=vscode");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /#123\s+Editable Issue/ }),
+    ).toBeVisible();
+
+    const issueEditor = page.getByTestId("tiptap-editor").first();
+    const saveButton = issueEditor.getByRole("button", { name: "Save" });
+
+    // Save button should be disabled initially when no changes
+    await expect(saveButton).toBeDisabled();
+  });
+
+  test("save button is enabled when content changes", async ({ page }) => {
+    // GET issue
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockIssue),
+        });
+      },
+    );
+
+    // GET comments
+    await page.route(
+      /https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/issues\/123\/comments(\?.*)?$/,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([mockComment]),
+        });
+      },
+    );
+
+    await page.goto("/issues/123?owner=microsoft&repo=vscode");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /#123\s+Editable Issue/ }),
+    ).toBeVisible();
+
+    const issueEditor = page.getByTestId("tiptap-editor").first();
+    const saveButton = issueEditor.getByRole("button", { name: "Save" });
+    const content = issueEditor.locator(".ProseMirror");
+
+    // Save button should be disabled initially
+    await expect(saveButton).toBeDisabled();
+
+    // Make a change to the content
+    await content.click();
+    await page.keyboard.type(" - modified");
+
+    // Save button should now be enabled
+    await expect(saveButton).toBeEnabled();
   });
 });

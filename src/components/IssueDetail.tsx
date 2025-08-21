@@ -55,8 +55,6 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
           : comment,
       ),
     );
-    // ここで実際のAPI更新を行う
-    console.log("Updating comment:", commentId, newContent);
     try {
       await updateComment(owner, repo, commentId, newContent);
     } catch (e) {
@@ -128,15 +126,22 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
         <Link
           to="/issues"
           search={{ owner, repo }}
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+          className="inline-flex items-center text-black hover:text-blue-600 mb-4"
         >
           ← Back to Issues
         </Link>
 
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              #{issue.number} {issue.title}
+            <h1 className="text-3xl font-bold mb-2">
+              <a
+                href={`https://github.com/${owner}/${repo}/issues/${issue.number}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-black hover:text-blue-600 transition-colors"
+              >
+                #{issue.number} {issue.title}
+              </a>
             </h1>
             <div className="flex items-center space-x-4 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
