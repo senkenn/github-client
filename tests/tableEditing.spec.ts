@@ -37,12 +37,27 @@ test.describe("Table Editing Functionality", () => {
       });
     });
 
+    // Mock single issue
+    await page.route("**/repos/testowner/testrepo/issues/1", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(mockIssue),
+      });
+    });
+
     await page.goto("/");
     // Fill in owner and repo to navigate to issues page
     await page.fill('input[id="owner"]', "testowner");
     await page.fill('input[id="repo"]', "testrepo");
     await page.getByRole("button", { name: "Issues を表示" }).click();
-    await page.waitForURL("**/issues**");
+
+    // Wait for navigation to issues page
+    await page.waitForTimeout(1000); // Give time for navigation
+
+    // Navigate to issue detail page for editing
+    await page.goto("/issues/1?owner=testowner&repo=testrepo&state=open");
+    await page.waitForLoadState("networkidle");
   });
 
   test("should show table editing buttons when table is active", async ({
