@@ -49,6 +49,24 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
         class:
           "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] p-4 border border-gray-300 rounded-lg",
       },
+      handlePaste: (_view, event, _slice) => {
+        // Handle image paste from clipboard
+        const items = event.clipboardData?.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type.indexOf("image") === 0) {
+              event.preventDefault();
+              const file = item.getAsFile();
+              if (file) {
+                handleImageFromClipboard(file);
+              }
+              return true; // Prevent default paste behavior
+            }
+          }
+        }
+        return false; // Allow default paste behavior for non-images
+      },
     },
     onUpdate: ({ editor }) => {
       // Check if content has changed from original
@@ -85,6 +103,21 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
     // Reset the input value so the same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+  };
+
+  const handleImageFromClipboard = async (file: File) => {
+    if (editor) {
+      try {
+        const imageUrl = await uploadImage(file);
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: imageUrl, alt: `pasted-image-${Date.now()}` })
+          .run();
+      } catch (error) {
+        console.error("Failed to upload clipboard image:", error);
+      }
     }
   };
 

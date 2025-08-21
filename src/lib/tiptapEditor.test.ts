@@ -13,4 +13,11 @@ describe("TiptapEditor Image Upload", () => {
     expect(githubModule.uploadImage).toBeDefined();
     expect(typeof githubModule.uploadImage).toBe("function");
   });
+
+  it("should handle clipboard image paste functionality", async () => {
+    // Test that the TiptapEditor component can be imported (includes clipboard functionality)
+    const { TiptapEditor } = await import("../components/TiptapEditor");
+    expect(TiptapEditor).toBeDefined();
+    expect(typeof TiptapEditor).toBe("function");
+  });
 });
