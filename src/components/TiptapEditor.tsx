@@ -1,4 +1,5 @@
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import Image from "@tiptap/extension-image";
 import {
   Table,
   TableCell,
@@ -8,7 +9,8 @@ import {
 import { EditorContent, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { uploadImage } from "../lib/github";
 import { htmlToMarkdown, markdownToHtml } from "../lib/mdHtmlUtils";
 import { CodeBlockComponent } from "./CodeBlockComponent";
 
@@ -16,6 +18,7 @@ const lowlight = createLowlight(all);
 
 const extensions = [
   StarterKit,
+  Image,
   Table,
   TableRow,
   TableHeader,
@@ -36,6 +39,7 @@ interface TiptapEditorProps {
 export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
   const [hasChanges, setHasChanges] = useState(false);
   const [isTableActive, setIsTableActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions,
@@ -44,6 +48,24 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
       attributes: {
         class:
           "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] p-4 border border-gray-300 rounded-lg",
+      },
+      handlePaste: (_view, event, _slice) => {
+        // Handle image paste from clipboard
+        const items = event.clipboardData?.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type.indexOf("image") === 0) {
+              event.preventDefault();
+              const file = item.getAsFile();
+              if (file) {
+                handleImageFromClipboard(file);
+              }
+              return true; // Prevent default paste behavior
+            }
+          }
+        }
+        return false; // Allow default paste behavior for non-images
       },
     },
     onUpdate: ({ editor }) => {
@@ -61,6 +83,43 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
       setIsTableActive(tableActive);
     },
   });
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file && editor) {
+      try {
+        const imageUrl = await uploadImage(file);
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: imageUrl, alt: file.name })
+          .run();
+      } catch (error) {
+        console.error("Failed to upload image:", error);
+      }
+    }
+    // Reset the input value so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleImageFromClipboard = async (file: File) => {
+    if (editor) {
+      try {
+        const imageUrl = await uploadImage(file);
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: imageUrl, alt: `pasted-image-${Date.now()}` })
+          .run();
+      } catch (error) {
+        console.error("Failed to upload clipboard image:", error);
+      }
+    }
+  };
 
   const handleSave = () => {
     if (editor) {
@@ -192,6 +251,13 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
                 </button>
               </>
             )}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              📷
+            </button>
           </div>
           <div className="flex space-x-2">
             <button
@@ -225,6 +291,15 @@ export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
       <div className="relative">
         <EditorContent editor={editor} />
       </div>
+
+      {/* Hidden file input for image upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        style={{ display: "none" }}
+      />
     </div>
   );
 }

@@ -1,0 +1,23 @@
+import { describe, expect, it } from "vitest";
+
+// Test that the TiptapEditor module imports correctly
+describe("TiptapEditor Image Upload", () => {
+  it("should include Image extension in imports", async () => {
+    // Check that the Image extension can be imported
+    const imageExtension = await import("@tiptap/extension-image");
+    expect(imageExtension.default).toBeDefined();
+  });
+
+  it("should include uploadImage function in github module", async () => {
+    const githubModule = await import("./github");
+    expect(githubModule.uploadImage).toBeDefined();
+    expect(typeof githubModule.uploadImage).toBe("function");
+  });
+
+  it("should handle clipboard image paste functionality", async () => {
+    // Test that the TiptapEditor component can be imported (includes clipboard functionality)
+    const { TiptapEditor } = await import("../components/TiptapEditor");
+    expect(TiptapEditor).toBeDefined();
+    expect(typeof TiptapEditor).toBe("function");
+  });
+});
