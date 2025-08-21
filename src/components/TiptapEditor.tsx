@@ -31,16 +31,9 @@ interface TiptapEditorProps {
   content: string;
   onSave: (content: string) => void;
   onCancel: () => void;
-  autoEdit?: boolean;
 }
 
-export function TiptapEditor({
-  content,
-  onSave,
-  onCancel,
-  autoEdit = false,
-}: TiptapEditorProps) {
-  const [isEditing, setIsEditing] = useState(autoEdit);
+export function TiptapEditor({ content, onSave, onCancel }: TiptapEditorProps) {
   const [hasChanges, setHasChanges] = useState(false);
   const [isTableActive, setIsTableActive] = useState(false);
 
@@ -72,7 +65,6 @@ export function TiptapEditor({
   const handleSave = () => {
     if (editor) {
       onSave(htmlToMarkdown(editor.getHTML()));
-      setIsEditing(false);
       setHasChanges(false);
     }
   };
@@ -94,7 +86,7 @@ export function TiptapEditor({
       className="border border-gray-200 rounded-lg bg-white"
       data-testid="tiptap-editor"
     >
-      {isEditing && (
+      {
         <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-gray-50">
           <div className="flex space-x-2">
             <button
@@ -228,26 +220,10 @@ export function TiptapEditor({
             </button>
           </div>
         </div>
-      )}
+      }
 
       <div className="relative">
         <EditorContent editor={editor} />
-
-        {!isEditing && (
-          <button
-            type="button"
-            className="absolute inset-0 bg-transparent cursor-pointer"
-            onClick={() => setIsEditing(true)}
-            aria-label="編集を開始"
-            title="編集を開始"
-          >
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                編集を開始
-              </span>
-            </div>
-          </button>
-        )}
       </div>
     </div>
   );

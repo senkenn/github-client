@@ -55,8 +55,6 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
           : comment,
       ),
     );
-    // ここで実際のAPI更新を行う
-    console.log("Updating comment:", commentId, newContent);
     try {
       await updateComment(owner, repo, commentId, newContent);
     } catch (e) {
@@ -179,7 +177,6 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
               content={issue.body}
               onSave={(content) => handleUpdateIssueBody(content)}
               onCancel={() => {}}
-              autoEdit={true}
             />
           </div>
         </div>
@@ -211,7 +208,6 @@ export function IssueDetail({ issueNumber, owner, repo }: IssueDetailProps) {
                 content={comment.body}
                 onSave={(content) => handleUpdateComment(comment.id, content)}
                 onCancel={() => {}}
-                autoEdit={true}
               />
             </div>
           </div>

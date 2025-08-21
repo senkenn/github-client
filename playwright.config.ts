@@ -14,6 +14,8 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
+  /* Set global timeout to 5 seconds */
+  timeout: 5000,
 
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -25,6 +27,10 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     /* フォント設定 */
     locale: "en-US",
+    /* Set action timeout to 5 seconds */
+    actionTimeout: 5000,
+    /* Set navigation timeout to 5 seconds */
+    navigationTimeout: 5000,
   },
 
   /* Start dev server before running tests */

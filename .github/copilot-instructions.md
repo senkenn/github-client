@@ -6,6 +6,17 @@ GitHub Client is a React + TypeScript web application that provides a WYSIWYG ed
 
 Activate project github-client.
 
+## ⚠️ CRITICAL CHAT RESTRICTIONS
+
+**NEVER DO THESE IN CHAT SESSIONS:**
+
+- ❌ Use `sleep` command (unnecessary delay)
+- ❌ Restart development server (`npm run dev`, `kill vite`, etc.)
+- ❌ Execute `npm run dev` in chat (should be run manually)
+- ❌ Use blocking commands without `:log` variants
+
+**WHY:** These commands block chat output and cause unnecessary delays.
+
 ## Quick Setup
 
 ```bash
@@ -42,8 +53,8 @@ ps aux | grep playwright | grep -v grep # E2E test status
 
 **Never use:**
 
-- `npm run lint`, `npm run test`, `npm run test:e2e`, or `npm run build` in chat (blocks output)
-- `sleep` command in chat (unnecessary delay, use background jobs with logs instead)
+- Blocking commands without `:log` variants (blocks output)
+- Background processes or server restarts in chat sessions
 
 ## Manual Validation Workflow
 
