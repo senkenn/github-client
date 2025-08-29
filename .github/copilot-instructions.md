@@ -2,6 +2,8 @@
 
 GitHub Client is a React + TypeScript web application that provides a WYSIWYG editor for GitHub Issues. It supports GitHub-like search syntax, localStorage persistence, and real-time issue editing.
 
+**⚠️ MANDATORY: AI assistants MUST read this entire file at the start of every user interaction to ensure proper adherence to project guidelines and restrictions.**
+
 **ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
 
 Activate project github-client.
