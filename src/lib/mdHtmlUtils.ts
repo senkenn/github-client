@@ -5,7 +5,12 @@ import TurndownService from "turndown";
  * Converts markdown text to HTML
  */
 export function markdownToHtml(markdown: string): string {
-  const md = new MarkdownIt();
+  const md = new MarkdownIt({
+    // Allow raw HTML in markdown (GitHub supports this)
+    html: true,
+    // Auto-link plain URLs
+    linkify: true,
+  });
   const html = md
     .render(markdown)
     // <pre><code...> タグ内の末尾の改行(\n</code>)を削除する
