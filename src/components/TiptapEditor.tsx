@@ -25,6 +25,15 @@ const extensions = [
     codeBlock: false, // Disable default code block to avoid conflicts
   }),
   Image.extend({
+    addAttributes() {
+      return {
+        src: { default: null },
+        alt: { default: null },
+        title: { default: null },
+        width: { default: null },
+        height: { default: null },
+      };
+    },
     addPasteRules() {
       return [
         nodePasteRule({
@@ -39,11 +48,7 @@ const extensions = [
     },
   }).configure({
     allowBase64: true,
-    HTMLAttributes: {
-      // Avoid sending referrer; do not set crossorigin to prevent CORS preflight
-      referrerpolicy: "no-referrer",
-      style: "max-width: 100%; height: auto;",
-    },
+    // Do not inject extra attributes; keep original HTML attrs only
   }),
   Table,
   TableRow,

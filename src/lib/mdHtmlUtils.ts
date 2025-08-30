@@ -57,6 +57,15 @@ export function htmlToMarkdown(html: string): string {
     codeBlockStyle: "fenced",
   });
 
+  // Preserve <img> as raw HTML instead of converting to ![]() markdown
+  turndownService.addRule("preserveImgAsHtml", {
+    filter: "img",
+    replacement: (_content, node) => {
+      const el = node as HTMLElement;
+      return el.outerHTML;
+    },
+  });
+
   // カスタムテーブルルールを追加
   turndownService.addRule("tables", {
     filter: "table",
