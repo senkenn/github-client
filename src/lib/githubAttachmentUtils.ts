@@ -26,3 +26,25 @@ export function normalizeGithubAttachmentUrl(url: string): string {
   const separator = url.includes("?") ? "&" : "?";
   return `${url}${separator}download=1`;
 }
+
+/**
+ * In dev, route attachment URLs through the Vite dev API (/api/pw-fetch)
+ * so that requests include Authorization and avoid CORS issues for private assets.
+ * Raw HTML <img> should not be rewritten automatically; this is intended for
+ * plain-URL paste handling.
+ */
+export function toProxiedGithubUrl(url: string): string {
+  // Only rewrite GitHub attachment URLs
+  if (!isGithubAttachmentUrl(url)) return url;
+  try {
+    const u = new URL(url);
+    return `/api/pw-fetch?url=${encodeURIComponent(
+      `${u.origin}${u.pathname}${u.search}${u.hash}`,
+    )}`;
+  } catch {
+    return url;
+  }
+}
+
+// Backward-compatible alias
+export const toProxiedGithubUrlIfDev = toProxiedGithubUrl;

@@ -17,6 +17,7 @@ import {
 } from "../lib/githubAttachmentUtils";
 import { htmlToMarkdown, markdownToHtml } from "../lib/mdHtmlUtils";
 import { CodeBlockComponent } from "./CodeBlockComponent";
+import { GithubImageNodeView } from "./GithubImageNodeView";
 
 const lowlight = createLowlight(all);
 
@@ -41,10 +42,15 @@ const extensions = [
           type: this.type,
           getAttributes: (match) => {
             const raw = match[0];
-            return { src: normalizeGithubAttachmentUrl(raw) };
+            // Keep original src in document; runtime NodeView will proxy it
+            const src = normalizeGithubAttachmentUrl(raw);
+            return { src };
           },
         }),
       ];
+    },
+    addNodeView() {
+      return ReactNodeViewRenderer(GithubImageNodeView);
     },
   }).configure({
     allowBase64: true,

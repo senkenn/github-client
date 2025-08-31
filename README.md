@@ -13,52 +13,71 @@ Edit GitHub Issues using a WYSIWYG editor.
 - Responsive design with modern UI components
 - Optimistic updates with automatic rollback on errors
 
-## Usage
+## Quick Start
 
-### Development Setup
+Local development
 
-1. Clone this repository:
+```bash
+git clone https://github.com/senkenn/github-client.git
+cd github-client
+npm install
+echo VITE_GITHUB_TOKEN=$(gh auth token) > .env
+npm run dev
+```
 
-   ```bash
-   git clone https://github.com/senkenn/github-client.git
-   cd github-client
-   ```
+Open `http://localhost:5173`.
 
-2. Install dependencies:
+Docker (serves on 7777)
 
-   ```bash
-   npm install
-   ```
+```bash
+git clone https://github.com/senkenn/github-client.git
+cd github-client
+echo VITE_GITHUB_TOKEN=$(gh auth token) > .env
+docker compose up -d
+```
 
-3. Add your GitHub token to `.env`:
+Open `http://localhost:7777`.
 
-   ```bash
-   echo VITE_GITHUB_TOKEN=$(gh auth token) > .env
-   ```
+### Browser setup (CDP)
 
-4. Start the development server:
+This app proxies some GitHub resources via Playwright using Chrome DevTools Protocol (CDP) to reuse your logged‑in GitHub cookies during development.
 
-   ```bash
-   npm run dev
-   ```
+- Launch a Chromium‑based browser (Chrome/Chromium/Edge/Brave, etc.) with CDP enabled. Use whichever binary you have:
 
-   Access the application at `http://localhost:5173`
+  ```bash
+  # Linux examples (pick one you have)
+  google-chrome --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
+  chromium       --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
+  chromium-browser --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
+  microsoft-edge --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
+  brave          --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
+  ```
 
-### Production Deployment
+  macOS:
 
-1. Build the application:
+  ```bash
+  open -a "Google Chrome" --args --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
+  ```
 
-   ```bash
-   npm run build
-   ```
+  Windows (PowerShell):
 
-2. Start with Docker Compose:
+  ```powershell
+  # Chrome
+  & "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
 
-   ```bash
-   docker compose up -d
-   ```
+  # Edge (path may be in Program Files or Program Files (x86))
+  & "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe" --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
 
-   Access at `http://localhost:7777`
+  # Brave
+  & "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe" --remote-debugging-port=9222 --disable-features=DevToolsDebuggingRestrictions
+  ```
+
+  - Separate profile (PowerShell): `--user-data-dir="$env:LOCALAPPDATA\chrome-remote\dev"`
+  - For CMD: wrap paths in double quotes and use `%LOCALAPPDATA%` for environment variables.
+
+- If another instance is already running, use a separate profile: `--user-data-dir="$HOME/.cache/chrome-remote/dev"` and log in to GitHub in that window.
+- Optional `.env`: `PW_CDP_URL=http://127.0.0.1:9222` (or `PW_CDP_PORTS=9222`).
+- Verify: `curl http://127.0.0.1:9222/json/version` should return a `webSocketDebuggerUrl`.
 
 ## Development
 
@@ -73,28 +92,37 @@ Edit GitHub Issues using a WYSIWYG editor.
 
 ### Testing
 
-The project uses a focused testing strategy:
+- Unit: Vitest for utilities and business logic
+- E2E: Playwright for routing and interactions
 
-- **Unit Tests (Vitest)**: For utility functions, parsers, and business logic
-- **E2E Tests (Playwright)**: For UI interactions, routing, and integration testing
-
-Run tests before making changes:
+Run locally before pushing:
 
 ```bash
-npm run lint && npm run test && npm run test:e2e
+npm run lint && npm test && npm run test:e2e
 ```
 
 ### Architecture
 
-- **Frontend**: React with TypeScript and TanStack Router
-- **Styling**: Tailwind CSS v4
-- **Editor**: Tiptap rich text editor
-- **API**: GitHub REST API via Octokit
-- **Testing**: Vitest for unit tests, Playwright for E2E
+- Frontend: React + TypeScript + TanStack Router
+- Styling: Tailwind CSS v4
+- Editor: Tiptap rich text editor
+- API: GitHub REST API via Octokit
+- Testing: Vitest (unit), Playwright (E2E)
 
 ### Key Components
 
-- `IssueDetail.tsx` - Issue view with editing capabilities
-- `IssuesList.tsx` / `IssuesListUI.tsx` - Issue listing with search/filter
-- `FilterBar.tsx` - GitHub-style search and filtering
-- `TiptapEditor.tsx` - Rich text editor for markdown content
+- `IssueDetail.tsx` - Issue view with editing
+- `IssuesList.tsx` / `IssuesListUI.tsx` - Issue list + filters
+- `FilterBar.tsx` - GitHub-style search
+- `TiptapEditor.tsx` - Rich text editor
+
+### Troubleshooting
+
+- `pw-fetch error: No github.com cookies` → Start Chrome with CDP and log in to GitHub (see Browser setup). If using a new `--user-data-dir`, log in there.
+- `/json/version` shows `HeadlessChrome` → Start a normal Chrome window (GUI) and point `PW_CDP_URL` to that port, e.g. 9223.
+- `404 Not Found` for CDP WebSocket → Chrome restarted; the middleware reconnects automatically. Restart dev server if issues persist.
+
+### Security
+
+- Do not commit secrets. Keep `.env` out of version control.
+- Without `VITE_GITHUB_TOKEN`, you may hit GitHub API rate limits during development.
