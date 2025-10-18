@@ -2,7 +2,7 @@
 
 Edit GitHub Issues using a WYSIWYG editor.
 
-<img width="1096" height="807" alt="image" src="https://github.com/user-attachments/assets/ff454822-d815-4141-a3bb-6a1b282a2f80" />
+<img width="1096" height="807" alt="GitHub Issues WYSIWYG Editor Interface" src="https://github.com/user-attachments/assets/ff454822-d815-4141-a3bb-6a1b282a2f80" />
 
 
 ## Features
