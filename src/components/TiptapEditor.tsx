@@ -1,4 +1,6 @@
+import { nodePasteRule } from "@tiptap/core";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import Image from "@tiptap/extension-image";
 import {
   Table,
   TableCell,
@@ -9,13 +11,51 @@ import { EditorContent, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
 import { useState } from "react";
+import {
+  githubAttachmentRegex,
+  normalizeGithubAttachmentUrl,
+} from "../lib/githubAttachmentUtils";
 import { htmlToMarkdown, markdownToHtml } from "../lib/mdHtmlUtils";
 import { CodeBlockComponent } from "./CodeBlockComponent";
+import { GithubImageNodeView } from "./GithubImageNodeView";
 
 const lowlight = createLowlight(all);
 
 const extensions = [
-  StarterKit,
+  StarterKit.configure({
+    codeBlock: false, // Disable default code block to avoid conflicts
+  }),
+  Image.extend({
+    addAttributes() {
+      return {
+        src: { default: null },
+        alt: { default: null },
+        title: { default: null },
+        width: { default: null },
+        height: { default: null },
+      };
+    },
+    addPasteRules() {
+      return [
+        nodePasteRule({
+          find: new RegExp(githubAttachmentRegex.source, "g"),
+          type: this.type,
+          getAttributes: (match) => {
+            const raw = match[0];
+            // Keep original src in document; runtime NodeView will proxy it
+            const src = normalizeGithubAttachmentUrl(raw);
+            return { src };
+          },
+        }),
+      ];
+    },
+    addNodeView() {
+      return ReactNodeViewRenderer(GithubImageNodeView);
+    },
+  }).configure({
+    allowBase64: true,
+    // Do not inject extra attributes; keep original HTML attrs only
+  }),
   Table,
   TableRow,
   TableHeader,

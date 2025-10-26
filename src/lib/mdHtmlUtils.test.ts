@@ -99,6 +99,34 @@ describe("markdown/html edge cases", () => {
     expect(result).toBe(markdown);
   });
 
+  it("should preserve raw <img> HTML as-is", () => {
+    const html =
+      '<p><img width="481" height="392" alt="Image" src="https://github.com/user-attachments/assets/dceb430a-7e82-42b0-83e9-b623d15b32b0"></p>';
+    const result = htmlToMarkdown(html);
+    expect(result).toBe(
+      '<img width="481" height="392" alt="Image" src="https://github.com/user-attachments/assets/dceb430a-7e82-42b0-83e9-b623d15b32b0">',
+    );
+  });
+
+  it("converts markdown image to <img> and preserves as HTML (no alt)", () => {
+    const url =
+      "https://github.com/user-attachments/assets/dceb430a-7e82-42b0-83e9-b623d15b32b0";
+    const md = `![](${url})`;
+    const html = markdownToHtml(md);
+    expect(html).toContain(`<img src="${url}" alt="">`);
+    const roundtrip = htmlToMarkdown(html);
+    expect(roundtrip).toBe(`<img src="${url}" alt="">`);
+  });
+
+  it("converts markdown image with alt to <img> and preserves as HTML", () => {
+    const url = "https://example.com/image.png";
+    const md = `![AltText](${url})`;
+    const html = markdownToHtml(md);
+    expect(html).toContain(`<img src="${url}" alt="AltText">`);
+    const roundtrip = htmlToMarkdown(html);
+    expect(roundtrip).toBe(`<img src="${url}" alt="AltText">`);
+  });
+
   it("should handle bold and italic text", () => {
     const markdown = "**bold** and *italic* text";
     const html = markdownToHtml(markdown);
